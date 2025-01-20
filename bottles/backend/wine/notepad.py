@@ -1,5 +1,3 @@
-from typing import NewType, Optional
-
 from bottles.backend.logger import Logger
 from bottles.backend.wine.wineprogram import WineProgram
 
@@ -18,9 +16,8 @@ class Notepad(WineProgram):
             args = f"/w {path}"
         return self.launch(args=args, communicate=True, action_name="open")
 
-    def print(self, path: str, printer_name: Optional[str] = None):
+    def print(self, path: str, printer_name: str | None = None):
         args = f"/p {path}"
         if printer_name:
             args = f"/pt {path} {printer_name}"
         return self.launch(args=args, communicate=True, action_name="print")
-

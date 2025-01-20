@@ -1,14 +1,25 @@
 win_versions = {
-    "win10": {
+    "win11": {
         "CSDVersion": "",
         "CSDVersionHex": "0",
-        "CurrentBuild": "17763",
-        "CurrentBuildNumber": "17763",
-        "CurrentVersion": "10.0",
+        "CurrentBuild": "22000",
+        "CurrentBuildNumber": "22000",
+        "CurrentVersion": "6.3",
         "CurrentMinorVersionNumber": "0",
         "CurrentMajorVersionNumber": "a",  # 10
         "ProductType": "WinNT",
-        "ProductName": "Microsoft Windows 10"
+        "ProductName": "Microsoft Windows 11",
+    },
+    "win10": {
+        "CSDVersion": "",
+        "CSDVersionHex": "0",
+        "CurrentBuild": "19043",
+        "CurrentBuildNumber": "19043",
+        "CurrentVersion": "6.3",
+        "CurrentMinorVersionNumber": "0",
+        "CurrentMajorVersionNumber": "a",  # 10
+        "ProductType": "WinNT",
+        "ProductName": "Microsoft Windows 10",
     },
     "win81": {
         "CSDVersion": "",
@@ -19,7 +30,7 @@ win_versions = {
         "CurrentMinorVersionNumber": "3",
         "CurrentMajorVersionNumber": "6",
         "ProductType": "WinNT",
-        "ProductName": "Microsoft Windows 8.1"
+        "ProductName": "Microsoft Windows 8.1",
     },
     "win8": {
         "CSDVersion": "",
@@ -30,7 +41,7 @@ win_versions = {
         "CurrentMinorVersionNumber": "2",
         "CurrentMajorVersionNumber": "6",
         "ProductType": "WinNT",
-        "ProductName": "Microsoft Windows 8"
+        "ProductName": "Microsoft Windows 8",
     },
     "win7": {
         "CSDVersion": "Service Pack 1",
@@ -41,7 +52,7 @@ win_versions = {
         "CurrentMinorVersionNumber": "1",
         "CurrentMajorVersionNumber": "6",
         "ProductType": "WinNT",
-        "ProductName": "Microsoft Windows 7"
+        "ProductName": "Microsoft Windows 7",
     },
     "win2008r2": {
         "CSDVersion": "Service Pack 1",
@@ -52,7 +63,7 @@ win_versions = {
         "CurrentMinorVersionNumber": "1",
         "CurrentMajorVersionNumber": "6",
         "ProductType": "ServerNT",
-        "ProductName": "Microsoft Windows 2008 R2"
+        "ProductName": "Microsoft Windows 2008 R2",
     },
     "win2008": {
         "CSDVersion": "Service Pack 2",
@@ -63,7 +74,7 @@ win_versions = {
         "CurrentMinorVersionNumber": "0",
         "CurrentMajorVersionNumber": "6",
         "ProductType": "ServerNT",
-        "ProductName": "Microsoft Windows 2008"
+        "ProductName": "Microsoft Windows 2008",
     },
     "win2003": {
         "CSDVersion": "Service Pack 2",
@@ -74,7 +85,7 @@ win_versions = {
         "CurrentMinorVersionNumber": "2",
         "CurrentMajorVersionNumber": "5",
         "ProductType": "ServerNT",
-        "ProductName": "Microsoft Windows 2003"
+        "ProductName": "Microsoft Windows 2003",
     },
     "winxp": {
         "CSDVersion": "Service Pack 3",
@@ -84,7 +95,7 @@ win_versions = {
         "CurrentVersion": "5.1",
         "CurrentMinorVersionNumber": "2",
         "CurrentMajorVersionNumber": "5",
-        "ProductName": "Microsoft Windows XP"
+        "ProductName": "Microsoft Windows XP",
     },
     "winxp64": {
         "CSDVersion": "Service Pack 2",
@@ -95,20 +106,20 @@ win_versions = {
         "CurrentMinorVersionNumber": "2",
         "CurrentMajorVersionNumber": "5",
         "ProductType": "WinNT",
-        "ProductName": "Microsoft Windows XP"
+        "ProductName": "Microsoft Windows XP",
     },
     "win98": {
         "CSDVersion": "",
         "CSDVersionHex": "00000000",
         "VersionNumber": "4.10.2222",
         "SubVersionNumber": " A ",
-        "ProductName": "Microsoft Windows 98"
+        "ProductName": "Microsoft Windows 98",
     },
     "win95": {
         "CSDVersion": "",
         "CSDVersionHex": "00000000",
         "VersionNumber": "4.0.950",
         "SubVersionNumber": "",
-        "ProductName": "Microsoft Windows 95"
+        "ProductName": "Microsoft Windows 95",
     },
 }

@@ -1,0 +1,31 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $EnvironmentVariablesDialog: Adw.Dialog {
+  content-width: 600;
+  content-height: 800;
+  title: _("Environment Variables");
+
+  Box {
+    orientation: vertical;
+
+    Adw.HeaderBar {
+      styles [
+        "flat",
+      ]
+    }
+
+    Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        description: _("Environment variables are dynamic-named values that can affect the way running processes will behave in your bottle");
+
+        Adw.EntryRow entry_new_var {
+          title: _("New Variable");
+          show-apply-button: true;
+        }
+      }
+
+      Adw.PreferencesGroup group_vars {}
+    }
+  }
+}

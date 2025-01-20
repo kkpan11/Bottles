@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bottles\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-27 13:50+0530\n"
-"PO-Revision-Date: 2023-04-21 17:51+0000\n"
-"Last-Translator: vikdevelop <super-vik1@protonmail.com>\n"
+"PO-Revision-Date: 2024-12-19 20:43+0000\n"
+"Last-Translator: vikdevelop <vikdevelop@proton.me>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bottles/bottles/cs/"
 ">\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
+"X-Generator: Weblate 5.9.2-dev\n"
 
 #: bottles/backend/managers/backup.py:48 bottles/backend/managers/backup.py:95
 msgid "No path specified"
@@ -642,8 +642,8 @@ msgid "DXVK"
 msgstr "DXVK"
 
 #: bottles/frontend/ui/details-preferences.blp:28
-msgid "Improve Direct3D 9/10/11 compatibility by translating it to Vulkan."
-msgstr "Zlepšení kompatibility Direct3D 9/10/11 převodem do Vulkanu."
+msgid "Improve Direct3D 8/9/10/11 compatibility by translating it to Vulkan."
+msgstr "Zlepšení kompatibility Direct3D 8/9/10/11 převodem do Vulkanu."
 
 #: bottles/frontend/ui/details-preferences.blp:30
 msgid "Updating DXVK, please wait…"
@@ -656,7 +656,7 @@ msgstr "VKD3D"
 
 #: bottles/frontend/ui/details-preferences.blp:41
 msgid "Improve Direct3D 12 compatibility by translating it to Vulkan."
-msgstr "Zlepšení kompatibility Direct3D 9/10/11 převodem do Vulkanu."
+msgstr "Zlepšení kompatibility Direct3D 8/9/10/11 převodem do Vulkanu."
 
 #: bottles/frontend/ui/details-preferences.blp:43
 msgid "Updating VKD3D, please wait…"
@@ -985,7 +985,7 @@ msgstr "Vytvořit nový snímek"
 
 #: bottles/frontend/ui/details.blp:16
 msgid "Details"
-msgstr "Podrobnosti na"
+msgstr "Podrobnosti"
 
 #: bottles/frontend/ui/details.blp:24 bottles/frontend/ui/details.blp:64
 #: bottles/frontend/ui/importer.blp:15
@@ -2144,11 +2144,11 @@ msgstr "Zobrazit nestabilní verze runnerů."
 
 #: bottles/frontend/ui/preferences.blp:224
 msgid "DLL Components"
-msgstr "Komponenty DDL"
+msgstr "Komponenty DLL"
 
 #: bottles/frontend/ui/preferences.blp:238
 msgid "Bottles is running in offline mode, so DLLs are not available."
-msgstr "Bottles je spuštěný v offline režimu, takže DDL není k dispozici."
+msgstr "Bottles je spuštěný v offline režimu, takže DLL není k dispozici."
 
 #: bottles/frontend/ui/preferences.blp:270
 msgid "DXVK-NVAPI"
@@ -2640,7 +2640,7 @@ msgstr "Tento program funguje perfektně."
 #: bottles/frontend/widgets/installer.py:90
 #, python-brace-format
 msgid "Review for {0}"
-msgstr "Manifest pro {0}"
+msgstr "Recenze pro {0}"
 
 #: bottles/frontend/widgets/library.py:169
 #: bottles/frontend/widgets/program.py:194
@@ -2904,7 +2904,7 @@ msgid ""
 "Toggle experimental features such as versioning and installers. Release "
 "candidate for runners."
 msgstr ""
-"Zapnout experimentální funkce jako například správa verzí a installers."
+"Zapnout experimentální funkce jako například správa verzí a installers. "
 "Release Candidate pro spouštěče."
 
 #: data/com.usebottles.bottles.gschema.xml:71
@@ -3056,150 +3056,151 @@ msgstr ""
 "Přidáno více informací k aktualizacím a poznámek k vydání ke správné verzi"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:94
-#, fuzzy
 msgid "Fixed \"Add to Steam\" button"
-msgstr "Přidat do Steamu"
+msgstr "Opraveno tlačítko \"Přidat do Steamu\""
 
 #: data/com.usebottles.bottles.metainfo.xml.in:95
 msgid "Fixed BottleConfig being not serializable"
-msgstr ""
+msgstr "Opraven problém, kde BottleConfig nemohl být serializován"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:96
 msgid "Fixed Patool double extraction failing"
-msgstr ""
+msgstr "Opraveno selhání dvojité extrakce Patool"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:101
-#, fuzzy
 msgid "Correct version"
-msgstr "Verze komponenty"
+msgstr "Správná verze"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:106
-#, fuzzy
 msgid "Fix crash when creating a bottle"
-msgstr "Při vytváření láhve se vyskytla chyba."
+msgstr "Vyřešen pád programu při vytváření láhve"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:111
 msgid "Major change: Redesign New Bottle interface"
-msgstr ""
+msgstr "Hlavní změna: Změna designu Hlavního Uživatelského Rozhraní Lahví"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:112
-#, fuzzy
 msgid "Quality of life improvements:"
-msgstr "Drobná vylepšení uživatelského rozhraní"
+msgstr "Drobná vylepšení uživatelského rozhraní:"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:114
 msgid "Replace emote-love icon with library in library page"
-msgstr ""
+msgstr "Nahrazení ikony emotikony lásky ikonou knihovny na stránce knihovny"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:115
-#, fuzzy
 msgid "Add toast for \"Run Executable\""
-msgstr "Přidání vlastní cesty ke spustitelnému souboru"
+msgstr "Přidat vyskakovací okno pro \"Spustit spustitelný soubor\""
 
 #: data/com.usebottles.bottles.metainfo.xml.in:117
-#, fuzzy
 msgid "Bug fixes:"
-msgstr "Opravy chyb"
+msgstr "Opravy chyb:"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:119
 msgid "Adding shortcut to Steam resulted an error"
-msgstr ""
+msgstr "Přidání zástupce do služby Steam vedlo k chybě"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:120
-#, fuzzy
 msgid "Importing backups resulted an error"
-msgstr "Importuji zálohu: {0}"
+msgstr "Importování záloh selhalo"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:121
 msgid "Steam Runtime automatically enabled when using wine-ge-custom"
-msgstr ""
+msgstr "Při použití wine-ge-custom je automaticky zapnut Steam Runtime"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:122
 msgid ""
 "Various library related fixes, like empty covers, and crashes related to "
 "missing entries"
 msgstr ""
+"Různé opravy související s knihovnami, například prázdné obálky a pády "
+"související s chybějícími položkami"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:123
 msgid "Fix various issues related to text encoding"
-msgstr ""
+msgstr "Oprava různých chyb v kódování textu"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:130
 msgid "Fix error when downloading if Bottles isn't run from terminal"
-msgstr ""
+msgstr "Oprava chyby stahování když nejsou Lahve spuštěny přes terminál"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:137
-#, fuzzy
 msgid "Correct version date"
-msgstr "Datum vytvoření"
+msgstr "Správné datum verze"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:138
 msgid "Hide NVIDIA-related critical errors on non NVIDIA systems"
 msgstr ""
+"Skrytí kritických chyb souvisejících s NVIDIA v systémech jiných než NVIDIA"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:145
 msgid "Gamescope improvements and fixes"
-msgstr ""
+msgstr "Vylepšení a opravy Gamescope"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:146
 msgid "Dependency installation is faster and more stable"
-msgstr ""
+msgstr "Instalace závislostí je rychlejší a stabilnější"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:147
 msgid "The health check has more information for faster debugging"
-msgstr ""
+msgstr "Kontrola stavu obsahuje více informací pro rychlejší ladění"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:148
 msgid "NVAPI has a lot of fixes and is more stable, should now work properly"
-msgstr ""
+msgstr "NVAPI má hromadu oprav, mělo by být stabilní a fungovat jak má"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:149
 msgid "Fix crash when downloading a component"
-msgstr ""
+msgstr "Oprava chyby při stahování komponenty"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:150
 msgid "Backend code improvement by avoiding spin-lock"
-msgstr ""
+msgstr "Zlepšení kódu backendu zamezením spin-locku"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:151
 msgid "More variables for installer scripting"
-msgstr ""
+msgstr "Více proměnných pro skriptování instalátoru"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:152
 msgid "Fix onboard dialog showing \"All ready\" while it was in fact not ready"
 msgstr ""
+"Oprava dialogového okna na palubě zobrazujícího „Vše připraveno“, i když ve "
+"skutečnosti připraveno nebylo"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:153
 msgid "Improvement to build system"
-msgstr ""
+msgstr "Vylepšení v build systému"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:154
 msgid "Enabling VKD3D by default when creating bottles for gaming"
-msgstr ""
+msgstr "Automatické povolení VKD3D při tvorbě Lahve pro hry"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:155
 msgid "Fix crashes when reading Steam files with bad encodings"
-msgstr ""
+msgstr "Oprava pádů při čtení souborů služby Steam se špatným kódováním"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:156
 msgid ""
 "Fix components not updated correctly in the UI after installation/"
 "uninstallation"
 msgstr ""
+"Oprava komponent, které se po instalaci/odinstalaci správně neaktualizují v "
+"uživatelském rozhraní"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:157
 msgid "More FSR fixes"
-msgstr ""
+msgstr "Více FSR oprav"
 
 #: data/com.usebottles.bottles.metainfo.xml.in:158
 msgid ""
 "Fix the issue when a program closes after it was launched from \"Run "
 "executable\""
 msgstr ""
+"Oprava chyby, kdy se program zavře poté, co byl spuštěn jako \"Spustit "
+"spustitelný soubor\""
 
 #: data/com.usebottles.bottles.metainfo.xml.in:159
 msgid "and many, many, many more!"
-msgstr ""
+msgstr "a o dost více!"
 
 #~ msgid "Calculating…"
 #~ msgstr "Počítání…"

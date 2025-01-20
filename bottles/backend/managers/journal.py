@@ -20,7 +20,6 @@ import os
 import shutil
 import uuid
 from datetime import datetime, timedelta
-from typing import Optional
 
 from bottles.backend.globals import Paths
 from bottles.backend.utils import yaml
@@ -28,6 +27,7 @@ from bottles.backend.utils import yaml
 
 class JournalSeverity:
     """Represents the severity of a journal entry."""
+
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -51,7 +51,7 @@ class JournalManager:
             with open(JournalManager.path, "w") as f:
                 yaml.dump({}, f)
 
-        with open(JournalManager.path, "r") as f:
+        with open(JournalManager.path) as f:
             try:
                 journal = yaml.load(f)
             except yaml.YAMLError:
@@ -63,7 +63,12 @@ class JournalManager:
             return {}
 
         try:
-            journal = {k: v for k, v in sorted(journal.items(), key=lambda item: item[1]["timestamp"], reverse=True)}
+            journal = {
+                k: v
+                for k, v in sorted(
+                    journal.items(), key=lambda item: item[1]["timestamp"], reverse=True
+                )
+            }
         except (KeyError, TypeError):
             journal = {}
 
@@ -80,7 +85,9 @@ class JournalManager:
             if event.get("timestamp", None) is None:
                 latest_datetime = datetime.strptime(latest, "%Y-%m-%d %H:%M:%S")
             else:
-                latest_datetime = datetime.strptime(event["timestamp"], "%Y-%m-%d %H:%M:%S")
+                latest_datetime = datetime.strptime(
+                    event["timestamp"], "%Y-%m-%d %H:%M:%S"
+                )
                 latest = event["timestamp"]
 
             if latest_datetime < datetime.now() - timedelta(days=30):
@@ -92,7 +99,7 @@ class JournalManager:
         JournalManager.__save_journal(journal)
 
     @staticmethod
-    def __save_journal(journal: Optional[dict] = None):
+    def __save_journal(journal: dict | None = None):
         """Save the journal to the journal file."""
         if journal is None:
             journal = JournalManager.__get_journal()
@@ -149,7 +156,9 @@ class JournalManager:
             end = start + timedelta(days=1)
 
         for event_id, event in journal.items():
-            timestamp = datetime.strptime(event["timestamp"], "%Y-%m-%d %H:%M:%S").date()
+            timestamp = datetime.strptime(
+                event["timestamp"], "%Y-%m-%d %H:%M:%S"
+            ).date()
 
             if start <= timestamp <= end:
                 _journal[event_id] = event
@@ -175,7 +184,7 @@ class JournalManager:
         journal[event_id] = {
             "severity": severity,
             "message": message,
-            "timestamp": now.strftime("%Y-%m-%d %H:%M:%S")
+            "timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
         }
         JournalManager.__save_journal(journal)
         JournalManager.__clean_old()

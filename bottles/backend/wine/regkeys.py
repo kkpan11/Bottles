@@ -1,20 +1,28 @@
-from typing import NewType
-
 from bottles.backend.logger import Logger
 from bottles.backend.models.config import BottleConfig
 from bottles.backend.models.enum import Arch
 from bottles.backend.wine.catalogs import win_versions
 from bottles.backend.wine.reg import Reg
 from bottles.backend.wine.wineboot import WineBoot
+from bottles.backend.wine.winecfg import WineCfg
 
 logging = Logger()
 
 
 class RegKeys:
-
     def __init__(self, config: BottleConfig):
         self.config = config
         self.reg = Reg(self.config)
+
+    def lg_set_windows(self, version: str):
+        """
+        Legacy method to change Windows version in a bottle using
+        the Wine Configuration tool.
+        """
+        winecfg = WineCfg(self.config)
+        res = winecfg.set_windows_version(version)
+        if not res.ok:
+            raise ValueError(f"Failed to set Windows version to {version}")
 
     def set_windows(self, version: str):
         """
@@ -44,15 +52,18 @@ class RegKeys:
         wineboot = WineBoot(self.config)
         del_keys = {
             "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion": [
-                "SubVersionNumber", "VersionNumber"
+                "SubVersionNumber",
+                "VersionNumber",
             ],
             "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion": [
-                "CSDVersion", "CurrentBuildNumber", "CurrentVersion"
+                "CSDVersion",
+                "CurrentBuildNumber",
+                "CurrentVersion",
             ],
             "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\ProductOptions": "ProductType",
             "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\ServiceCurrent": "OS",
             "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Windows": "CSDVersion",
-            "HKEY_CURRENT_USER\\Software\\Wine": "Version"
+            "HKEY_CURRENT_USER\\Software\\Wine": "Version",
         }
         for d in del_keys:
             _val = del_keys.get(d)
@@ -65,105 +76,74 @@ class RegKeys:
         if version not in ["win98", "win95"]:
             bundle = {
                 "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion": [
-                    {
-                        "value": "CSDVersion",
-                        "data": win_version["CSDVersion"]
-                    },
-                    {
-                        "value": "CurrentBuild",
-                        "data": win_version["CurrentBuild"]
-                    },
+                    {"value": "CSDVersion", "data": win_version["CSDVersion"]},
+                    {"value": "CurrentBuild", "data": win_version["CurrentBuild"]},
                     {
                         "value": "CurrentBuildNumber",
-                        "data": win_version["CurrentBuildNumber"]
+                        "data": win_version["CurrentBuildNumber"],
                     },
-                    {
-                        "value": "CurrentVersion",
-                        "data": win_version["CurrentVersion"]
-                    },
-                    {
-                        "value": "ProductName",
-                        "data": win_version["ProductName"]
-                    },
+                    {"value": "CurrentVersion", "data": win_version["CurrentVersion"]},
+                    {"value": "ProductName", "data": win_version["ProductName"]},
                     {
                         "value": "CurrentMinorVersionNumber",
                         "data": win_version["CurrentMinorVersionNumber"],
-                        "key_type": "dword"
+                        "key_type": "dword",
                     },
                     {
                         "value": "CurrentMajorVersionNumber",
                         "data": win_version["CurrentMajorVersionNumber"],
-                        "key_type": "dword"
+                        "key_type": "dword",
                     },
                 ],
                 "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Windows": [
                     {
                         "value": "CSDVersion",
                         "data": win_version["CSDVersionHex"],
-                        "key_type": "dword"
+                        "key_type": "dword",
                     }
-                ]
+                ],
             }
         else:
             bundle = {
                 "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion": [
-                    {
-                        "value": "ProductName",
-                        "data": win_version["ProductName"]
-                    },
+                    {"value": "ProductName", "data": win_version["ProductName"]},
                     {
                         "value": "SubVersionNumber",
-                        "data": win_version["SubVersionNumber"]
+                        "data": win_version["SubVersionNumber"],
                     },
-                    {
-                        "value": "VersionNumber",
-                        "data": win_version["VersionNumber"]
-                    }
+                    {"value": "VersionNumber", "data": win_version["VersionNumber"]},
                 ]
             }
 
         if self.config.Arch == Arch.WIN64:
-            bundle["HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion"] = [
-                {
-                    "value": "CSDVersion",
-                    "data": win_version["CSDVersion"]
-                },
-                {
-                    "value": "CurrentBuild",
-                    "data": win_version["CurrentBuild"]
-                },
+            bundle[
+                "HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion"
+            ] = [
+                {"value": "CSDVersion", "data": win_version["CSDVersion"]},
+                {"value": "CurrentBuild", "data": win_version["CurrentBuild"]},
                 {
                     "value": "CurrentBuildNumber",
-                    "data": win_version["CurrentBuildNumber"]
+                    "data": win_version["CurrentBuildNumber"],
                 },
-                {
-                    "value": "CurrentVersion",
-                    "data": win_version["CurrentVersion"]
-                },
-                {
-                    "value": "ProductName",
-                    "data": win_version["ProductName"]
-                },
+                {"value": "CurrentVersion", "data": win_version["CurrentVersion"]},
+                {"value": "ProductName", "data": win_version["ProductName"]},
                 {
                     "value": "CurrentMinorVersionNumber",
                     "data": win_version["CurrentMinorVersionNumber"],
-                    "key_type": "dword"
+                    "key_type": "dword",
                 },
                 {
                     "value": "CurrentMajorVersionNumber",
                     "data": win_version["CurrentMajorVersionNumber"],
-                    "key_type": "dword"
-                }
+                    "key_type": "dword",
+                },
             ]
 
         if "ProductType" in win_version:
-            '''windows xp 32 doesn't have ProductOptions/ProductType key'''
-            bundle["HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\ProductOptions"] = [
-                {
-                    "value": "ProductType",
-                    "data": win_version["ProductType"]
-                }
-            ]
+            """windows xp 32 doesn't have ProductOptions/ProductType key"""
+            bundle[
+                "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\ProductOptions"
+            ] = [{"value": "ProductType", "data": win_version["ProductType"]}]
 
         self.reg.import_bundle(bundle)
 
@@ -184,7 +164,7 @@ class RegKeys:
         self.reg.add(
             key=f"HKEY_CURRENT_USER\\Software\\Wine\\AppDefaults\\{executable}",
             value="Version",
-            data=version
+            data=version,
         )
 
     def toggle_virtual_desktop(self, state: bool, resolution: str = "800x600"):
@@ -198,17 +178,16 @@ class RegKeys:
             self.reg.add(
                 key="HKEY_CURRENT_USER\\Software\\Wine\\Explorer",
                 value="Desktop",
-                data="Default"
+                data="Default",
             )
             self.reg.add(
                 key="HKEY_CURRENT_USER\\Software\\Wine\\Explorer\\Desktops",
                 value="Default",
-                data=resolution
+                data=resolution,
             )
         else:
             self.reg.remove(
-                key="HKEY_CURRENT_USER\\Software\\Wine\\Explorer",
-                value="Desktop"
+                key="HKEY_CURRENT_USER\\Software\\Wine\\Explorer", value="Desktop"
             )
         wineboot.update()
 
@@ -221,28 +200,29 @@ class RegKeys:
         """
         if scheme is None:
             scheme = {}
-        self.reg.import_bundle({
-            "HKEY_CURRENT_USER\\Console\\C:_windows_system32_wineconsole.exe": [
-                {"value": "ColorTable00", "data": "2368548"},
-                {"value": "CursorSize", "data": "25"},
-                {"value": "CursorVisible", "data": "1"},
-                {"value": "EditionMode", "data": "0"},
-                {"value": "FaceName", "data": "Monospace", "key_type": "dword"},
-                {"value": "FontPitchFamily", "data": "1"},
-                {"value": "FontSize", "data": "1248584"},
-                {"value": "FontWeight", "data": "400"},
-                {"value": "HistoryBufferSize", "data": "50"},
-                {"value": "HistoryNoDup", "data": "0"},
-                {"value": "InsertMode", "data": "1"},
-                {"value": "MenuMask", "data": "0"},
-                {"value": "PopupColors", "data": "245"},
-                {"value": "QuickEdit", "data": "1"},
-                {"value": "ScreenBufferSize", "data": "9830480"},
-                {"value": "ScreenColors", "data": "11"},
-                {"value": "WindowSize", "data": "1638480"
-                 }
-            ]
-        })
+        self.reg.import_bundle(
+            {
+                "HKEY_CURRENT_USER\\Console\\C:_windows_system32_wineconsole.exe": [
+                    {"value": "ColorTable00", "data": "2368548"},
+                    {"value": "CursorSize", "data": "25"},
+                    {"value": "CursorVisible", "data": "1"},
+                    {"value": "EditionMode", "data": "0"},
+                    {"value": "FaceName", "data": "Monospace", "key_type": "dword"},
+                    {"value": "FontPitchFamily", "data": "1"},
+                    {"value": "FontSize", "data": "1248584"},
+                    {"value": "FontWeight", "data": "400"},
+                    {"value": "HistoryBufferSize", "data": "50"},
+                    {"value": "HistoryNoDup", "data": "0"},
+                    {"value": "InsertMode", "data": "1"},
+                    {"value": "MenuMask", "data": "0"},
+                    {"value": "PopupColors", "data": "245"},
+                    {"value": "QuickEdit", "data": "1"},
+                    {"value": "ScreenBufferSize", "data": "9830480"},
+                    {"value": "ScreenColors", "data": "11"},
+                    {"value": "WindowSize", "data": "1638480"},
+                ]
+            }
+        )
 
     def set_renderer(self, value: str):
         """
@@ -255,7 +235,7 @@ class RegKeys:
             key="HKEY_CURRENT_USER\\Software\\Wine\\Direct3D",
             value="renderer",
             data=value,
-            value_type="REG_SZ"
+            value_type="REG_SZ",
         )
 
     def set_dpi(self, value: int):
@@ -266,7 +246,7 @@ class RegKeys:
             key="HKEY_CURRENT_USER\\Control Panel\\Desktop",
             value="LogPixels",
             data=str(value),
-            value_type="REG_DWORD"
+            value_type="REG_DWORD",
         )
 
     def set_grab_fullscreen(self, state: bool):
@@ -277,7 +257,7 @@ class RegKeys:
         self.reg.add(
             key="HKEY_CURRENT_USER\\Software\\Wine\\X11 Driver",
             value="GrabFullscreen",
-            data=value
+            data=value,
         )
 
     def set_take_focus(self, state: bool):
@@ -288,7 +268,7 @@ class RegKeys:
         self.reg.add(
             key="HKEY_CURRENT_USER\\Software\\Wine\\X11 Driver",
             value="UseTakeFocus",
-            data=value
+            data=value,
         )
 
     def set_decorated(self, state: bool):
@@ -299,7 +279,7 @@ class RegKeys:
         self.reg.add(
             key="HKEY_CURRENT_USER\\Software\\Wine\\X11 Driver",
             value="Decorated",
-            data=value
+            data=value,
         )
 
     def set_mouse_warp(self, state: int, executable: str = ""):
@@ -310,11 +290,7 @@ class RegKeys:
             1: Enabled
             2: Forced
         """
-        values = {
-            0: "disable",
-            1: "enable",
-            2: "force"
-        }
+        values = {0: "disable", 1: "enable", 2: "force"}
         if state not in values.keys():
             raise ValueError(f"{state} is not a valid mouse warp setting (0, 1, 2)")
 
@@ -322,8 +298,4 @@ class RegKeys:
         if executable:
             key = f"HKEY_CURRENT_USER\\Software\\Wine\\AppDefaults\\{executable}\\DirectInput"
 
-        self.reg.add(
-            key=key,
-            value="MouseWarpOverride",
-            data=values[state]
-        )
+        self.reg.add(key=key, value="MouseWarpOverride", data=values[state])

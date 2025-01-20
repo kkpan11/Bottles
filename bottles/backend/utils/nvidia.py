@@ -1,9 +1,9 @@
 """This file originated from Lutris (https://github.com/lutris/lutris/blob/master/lutris/util/nvidia.py)"""
+
 """Nvidia library detection from Proton"""
 
 import os
 from ctypes import CDLL, POINTER, Structure, addressof, c_char_p, c_int, c_void_p, cast
-import subprocess
 
 from bottles.backend.logger import Logger
 
@@ -29,6 +29,7 @@ class LinkMap(Structure):
         /* Plus additional fields private to the implementation */
     };
     """
+
     _fields_ = [("l_addr", c_void_p), ("l_name", c_char_p), ("l_ld", c_void_p)]
 
 
@@ -61,7 +62,8 @@ def get_nvidia_glx_path():
     if (
         dlinfo_func(
             libglx_nvidia._handle, RTLD_DI_LINKMAP, addressof(glx_nvidia_info_ptr)
-        ) != 0
+        )
+        != 0
     ):
         logging.error("Unable to read Nvidia information")
         return None
@@ -76,7 +78,7 @@ def get_nvidia_glx_path():
     try:
         libglx_nvidia_path = os.fsdecode(glx_nvidia_info.l_name)
     except UnicodeDecodeError as ex:
-        logging.error("Error decoding the Nvidia library path: %s", ex)
+        logging.error("Error decoding the Nvidia library path: %s", ex)  # type: ignore
         return None
 
     # Follow any symlinks to the actual file
@@ -90,13 +92,17 @@ def get_nvidia_dll_path():
     background on the chosen method of DLL discovery.
     """
     from bottles.backend.utils.gpu import GPUUtils, GPUVendors
-    if not GPUUtils.is_gpu(GPUVendors.NVIDIA): return None
+
+    if not GPUUtils.is_gpu(GPUVendors.NVIDIA):
+        return None
 
     libglx_path = get_nvidia_glx_path()
     if not libglx_path:
         logging.warning("Unable to locate libGLX_nvidia")
         return None
+
     nvidia_wine_dir = os.path.join(os.path.dirname(libglx_path), "nvidia/wine")
     if os.path.exists(os.path.join(nvidia_wine_dir, "nvngx.dll")):
         return nvidia_wine_dir
+
     return None

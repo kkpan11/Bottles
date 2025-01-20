@@ -23,6 +23,7 @@ from bottles.backend.managers.runtime import RuntimeManager
 from bottles.backend.models.config import BottleConfig
 from bottles.backend.models.result import Result
 from bottles.backend.utils.manager import ManagerUtils
+from bottles.backend.utils.steam import SteamUtils
 from bottles.backend.wine.wineboot import WineBoot
 
 if TYPE_CHECKING:
@@ -40,7 +41,9 @@ class Runner:
     """
 
     @staticmethod
-    def runner_update(config: BottleConfig, manager: 'Manager', runner: str) -> Result[dict]:
+    def runner_update(
+        config: BottleConfig, manager: "Manager", runner: str
+    ) -> Result[dict]:
         """
         This method should be executed after changing the runner
         for a bottle. It does a prefix update and re-initialize the
@@ -55,19 +58,14 @@ class Runner:
 
             if not os.path.exists(runner_path):
                 logging.error(f"Runner {runner} not found in {runner_path}")
-                return Result(
-                    status=False,
-                    data={"config": config}
-                )
+                return Result(status=False, data={"config": config})
 
         # kill wineserver after update
         wineboot.kill(force_if_stalled=True)
 
         # update bottle config
         up_config = manager.update_config(
-            config=config,
-            key="Runner",
-            value=runner
+            config=config, key="Runner", value=runner
         ).data["config"]
 
         # perform a prefix update
@@ -89,10 +87,9 @@ class Runner:
         the host system. There are some exceptions, like the Soda and Wine-GE runners,
         which are built to work without the Steam Runtime.
         """
-        if runner in manager.supported_proton_runners and RuntimeManager.get_runtimes("steam"):
+        if SteamUtils.is_proton(
+            ManagerUtils.get_runner_path(runner)
+        ) and RuntimeManager.get_runtimes("steam"):
             manager.update_config(config, "use_steam_runtime", True, "Parameters")
 
-        return Result(
-            status=True,
-            data={"config": up_config}
-        )
+        return Result(status=True, data={"config": up_config})

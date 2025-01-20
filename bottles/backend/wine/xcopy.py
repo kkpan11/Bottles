@@ -1,4 +1,3 @@
-from typing import NewType, Optional
 from datetime import datetime
 
 from bottles.backend.logger import Logger
@@ -12,24 +11,24 @@ class Xcopy(WineProgram):
     command = "xcopy"
 
     def copy(
-            self,
-            source: str,
-            dest: str,
-            dir_and_subs: bool = False,
-            keep_empty_dirs: bool = False,
-            quiet: bool = False,
-            full_log: bool = False,
-            simulate: bool = False,
-            ask_confirm: bool = False,
-            only_struct: bool = False,
-            no_overwrite_notify: bool = False,
-            use_short_names: bool = False,
-            only_existing_in_dest: bool = False,
-            overwrite_read_only_files: bool = False,
-            include_hidden_and_sys_files: bool = False,
-            continue_if_error: bool = False,
-            copy_attributes: bool = False,
-            after_date: Optional[datetime] = None,
+        self,
+        source: str,
+        dest: str,
+        dir_and_subs: bool = False,
+        keep_empty_dirs: bool = False,
+        quiet: bool = False,
+        full_log: bool = False,
+        simulate: bool = False,
+        ask_confirm: bool = False,
+        only_struct: bool = False,
+        no_overwrite_notify: bool = False,
+        use_short_names: bool = False,
+        only_existing_in_dest: bool = False,
+        overwrite_read_only_files: bool = False,
+        include_hidden_and_sys_files: bool = False,
+        continue_if_error: bool = False,
+        copy_attributes: bool = False,
+        after_date: datetime | None = None,
     ):
         args = f"{source} {dest} /i"
 

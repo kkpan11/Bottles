@@ -16,9 +16,7 @@
 #
 
 from functools import lru_cache, wraps
-from threading import Lock as PyLock
 from time import monotonic_ns
-from typing import Callable, Dict
 
 
 def cache(_func=None, *, seconds: int = 600, maxsize: int = 128, typed: bool = False):
@@ -35,7 +33,7 @@ def cache(_func=None, *, seconds: int = 600, maxsize: int = 128, typed: bool = F
 
     def wrapper_cache(f):
         f = lru_cache(maxsize=maxsize, typed=typed)(f)
-        f.delta = seconds * 10 ** 9
+        f.delta = seconds * 10**9
         f.expiration = monotonic_ns() + f.delta
 
         @wraps(f)

@@ -1,5 +1,3 @@
-from typing import NewType, Optional
-
 from bottles.backend.logger import Logger
 from bottles.backend.wine.wineprogram import WineProgram
 
@@ -11,14 +9,14 @@ class Explorer(WineProgram):
     command = "explorer"
 
     def launch_desktop(
-            self,
-            desktop: str = "shell",
-            width: int = 0,
-            height: int = 0,
-            program: Optional[str] = None,
-            args: Optional[str] = None,
-            environment: Optional[dict] = None,
-            cwd: Optional[str] = None
+        self,
+        desktop: str = "shell",
+        width: int = 0,
+        height: int = 0,
+        program: str | None = None,
+        args: str | None = None,
+        environment: dict | None = None,
+        cwd: str | None = None,
     ):
         _args = f"/desktop={desktop}"
 
@@ -29,4 +27,10 @@ class Explorer(WineProgram):
         if args:
             _args += args
 
-        return self.launch(args=_args, communicate=True, action_name="launch_desktop", environment=environment, cwd=cwd)
+        return self.launch(
+            args=_args,
+            communicate=True,
+            action_name="launch_desktop",
+            environment=environment,
+            cwd=cwd,
+        )

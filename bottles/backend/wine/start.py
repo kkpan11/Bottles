@@ -1,5 +1,3 @@
-from typing import NewType, Optional
-
 from bottles.backend.logger import Logger
 from bottles.backend.wine.wineprogram import WineProgram
 from bottles.backend.wine.winepath import WinePath
@@ -12,12 +10,15 @@ class Start(WineProgram):
     command = "start"
 
     def run(
-            self,
-            file: str,
-            terminal: bool = True,
-            args: str = "",
-            environment: Optional[dict] = None,
-            cwd: Optional[str] = None
+        self,
+        file: str,
+        terminal: bool = True,
+        args: str = "",
+        environment: dict | None = None,
+        pre_script: str | None = None,
+        post_script: str | None = None,
+        cwd: str | None = None,
+        midi_soundfont: str | None = None,
     ):
         winepath = WinePath(self.config)
 
@@ -37,7 +38,10 @@ class Start(WineProgram):
             communicate=True,
             terminal=terminal,
             environment=environment,
+            pre_script=pre_script,
+            post_script=post_script,
             cwd=cwd,
+            midi_soundfont=midi_soundfont,
             minimal=False,
-            action_name="run"
+            action_name="run",
         )

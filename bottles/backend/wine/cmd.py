@@ -1,5 +1,3 @@
-from typing import NewType, Optional
-
 from bottles.backend.logger import Logger
 from bottles.backend.wine.wineprogram import WineProgram
 
@@ -11,12 +9,12 @@ class CMD(WineProgram):
     command = "cmd"
 
     def run_batch(
-            self,
-            batch: str,
-            terminal: bool = True,
-            args: str = "",
-            environment: Optional[dict] = None,
-            cwd: Optional[str] = None
+        self,
+        batch: str,
+        terminal: bool = True,
+        args: str = "",
+        environment: dict | None = None,
+        cwd: str | None = None,
     ):
         args = f"/c {batch} {args}"
 
@@ -26,5 +24,5 @@ class CMD(WineProgram):
             terminal=terminal,
             environment=environment,
             cwd=cwd,
-            action_name="run_batch"
+            action_name="run_batch",
         )

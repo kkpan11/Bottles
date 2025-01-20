@@ -1,7 +1,8 @@
 """This should be a drop-in replacement for the json module built in CPython"""
+
 import json
 import json as _json
-from typing import Optional, IO, Any, Type
+from typing import IO, Any
 
 from bottles.backend.models.config import DictCompatMixIn
 
@@ -15,7 +16,7 @@ class ExtJSONEncoder(_json.JSONEncoder):
         return super().default(o)
 
 
-def load(fp: IO[str | bytes]) -> Any:
+def load(fp: IO[str]) -> Any:
     """Deserialize fp (a .read()-supporting file-like object containing a JSON document) to a Python object."""
     return _json.load(fp)
 
@@ -26,8 +27,11 @@ def loads(s: str | bytes) -> Any:
 
 
 def dump(
-        obj: Any, fp: IO[str], *,
-        indent: Optional[str | int] = None, cls: Optional[Type[_json.JSONEncoder]] = None
+    obj: Any,
+    fp: IO[str],
+    *,
+    indent: str | int | None = None,
+    cls: type[_json.JSONEncoder] | None = None,
 ) -> None:
     """
     Serialize obj as a JSON formatted stream to fp (a .write()-supporting file-like object).
@@ -42,7 +46,12 @@ def dump(
     return _json.dump(obj, fp, indent=indent, cls=cls)
 
 
-def dumps(obj: Any, *, indent: Optional[str | int] = None, cls: Optional[Type[_json.JSONEncoder]] = None) -> str:
+def dumps(
+    obj: Any,
+    *,
+    indent: str | int | None = None,
+    cls: type[_json.JSONEncoder] | None = None,
+) -> str:
     """
     Serialize obj to a JSON formatted str.
 

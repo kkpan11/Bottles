@@ -5,19 +5,19 @@
 #### Build & install
 
 ```bash
-flatpak-builder --install --user --force-clean ./.flatpak-builder/out com.usebottles.bottles.yml
+flatpak-builder --install --user --force-clean ./.flatpak-builder/out ./build-aux/com.usebottles.bottles.Devel.json
 ```
 
 #### Run
 
 ```bash
-flatpak run com.usebottles.bottles
+flatpak run com.usebottles.bottles.Devel
 ```
 
 #### Uninstall devel version
 
 ```bash
-flatpak uninstall com.usebottles.bottles//master
+flatpak uninstall com.usebottles.bottles.Devel
 ```
 
 ## Unit Test
@@ -33,14 +33,14 @@ pytest .
 Regenerate PYPI dependency manifest when requirements.txt changed
 
 ```bash
-python ./utils/flatpak-pip-generator.py --runtime org.gnome.Sdk -r requirements.txt -o com.usebottles.bottles.pypi-deps --yaml
+python ./build-aux/flatpak-pip-generator.py --runtime org.gnome.Sdk -r requirements.txt -o com.usebottles.bottles.pypi-deps --yaml
 ```
 
 ## I18n files
 
 ### `po/POTFILES`
 
-List of source files containing translatable strings.  
+List of source files containing translatable strings.
 Regenerate this file when you added/moved/removed/renamed files
 that contains translatable strings.
 
@@ -51,16 +51,16 @@ cat > po/POTFILES <<EOF
 EOF
 grep -rlP "_\(['\"]" bottles | sort >> po/POTFILES
 cat >> po/POTFILES <<EOF
-data/com.usebottles.bottles.desktop.in
+data/com.usebottles.bottles.desktop.in.in
 data/com.usebottles.bottles.gschema.xml
-data/com.usebottles.bottles.metainfo.xml.in
+data/com.usebottles.bottles.metainfo.xml.in.in
 EOF
 ```
 
 ### `po/bottles.pot` and `po/*.po`
 
-We have a main pot file, which is template for other `.po` files  
-And for each language listed in `po/LINGUAS` we have a corresponding `.po` file  
+We have a main pot file, which is template for other `.po` files
+And for each language listed in `po/LINGUAS` we have a corresponding `.po` file
 Regenerate these files when any translatable string added/changed/removed
 
 ```bash

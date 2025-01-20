@@ -36,23 +36,28 @@ class RepositoryManager:
         "components": {
             "url": "https://proxy.usebottles.com/repo/components/",
             "index": "",
-            "cls": ComponentRepo
+            "cls": ComponentRepo,
         },
         "dependencies": {
             "url": "https://proxy.usebottles.com/repo/dependencies/",
             "index": "",
-            "cls": DependencyRepo
+            "cls": DependencyRepo,
         },
         "installers": {
             "url": "https://proxy.usebottles.com/repo/programs/",
             "index": "",
-            "cls": InstallerRepo
-        }
+            "cls": InstallerRepo,
+        },
     }
 
-    def __init__(self):
-        self.__check_locals()
-        self.__get_index()
+    def __init__(self, get_index=True):
+        self.do_get_index = True
+        self.aborted_connections = 0
+        SignalManager.connect(Signals.ForceStopNetworking, self.__stop_index)
+
+        self.__check_personals()
+        if get_index:
+            self.__get_index()
 
     def get_repo(self, name: str, offline: bool = False):
         if name in self.__repositories:
@@ -61,32 +66,39 @@ class RepositoryManager:
 
         logging.error(f"Repository {name} not found")
 
-    def __check_locals(self):
-        _locals = {}
+    def __check_personals(self):
+        _personals = {}
 
-        if "LOCAL_COMPONENTS" in os.environ:
-            _locals["components"] = os.environ["LOCAL_COMPONENTS"]
+        if "PERSONAL_COMPONENTS" in os.environ:
+            _personals["components"] = os.environ["PERSONAL_COMPONENTS"]
 
-        if "LOCAL_DEPENDENCIES" in os.environ:
-            _locals["dependencies"] = os.environ["LOCAL_DEPENDENCIES"]
+        if "PERSONAL_DEPENDENCIES" in os.environ:
+            _personals["dependencies"] = os.environ["PERSONAL_DEPENDENCIES"]
 
-        if "LOCAL_INSTALLERS" in os.environ:
-            _locals["installers"] = os.environ["LOCAL_INSTALLERS"]
+        if "PERSONAL_INSTALLERS" in os.environ:
+            _personals["installers"] = os.environ["PERSONAL_INSTALLERS"]
 
-        if not _locals:
+        if not _personals:
             return
 
         for repo in self.__repositories:
-            if repo not in _locals:
+            if repo not in _personals:
                 continue
 
-            _path = _locals[repo]
+            _url = _personals[repo]
+            self.__repositories[repo]["url"] = _url
+            logging.info(f"Using personal {repo} repository at {_url}")
 
-            if os.path.exists(_path):
-                self.__repositories[repo]["url"] = f"file://{_path}/"
-                logging.info(f"Using local {repo} repository at {_path}")
-            else:
-                logging.error(f"Local {repo} path does not exist: {_path}")
+    def __curl_progress(self, _download_t, _download_d, _upload_t, _upload_d):
+        if self.do_get_index:
+            return pycurl.E_OK
+        else:
+            self.aborted_connections += 1
+            return pycurl.E_ABORTED_BY_CALLBACK
+
+    def __stop_index(self, res: Result):
+        if res.status:
+            self.do_get_index = False
 
     def __get_index(self):
         total = len(self.__repositories)
@@ -94,6 +106,7 @@ class RepositoryManager:
         threads = []
 
         for repo, data in self.__repositories.items():
+
             def query(_repo, _data):
                 __index = os.path.join(_data["url"], f"{APP_VERSION}.yml")
                 __fallback = os.path.join(_data["url"], "index.yml")
@@ -104,22 +117,30 @@ class RepositoryManager:
                     c.setopt(c.NOBODY, True)
                     c.setopt(c.FOLLOWLOCATION, True)
                     c.setopt(c.TIMEOUT, 10)
+                    c.setopt(c.NOPROGRESS, False)
+                    c.setopt(c.XFERINFOFUNCTION, self.__curl_progress)
 
                     try:
                         c.perform()
                     except pycurl.error as e:
                         if url is not __index:
-                            logging.error(f"Could not get index for {_repo} repository: {e}")
+                            logging.error(
+                                f"Could not get index for {_repo} repository: {e}"
+                            )
                         continue
 
                     if url.startswith("file://") or c.getinfo(c.RESPONSE_CODE) == 200:
                         _data["index"] = url
-                        SignalManager.send(Signals.RepositoryFetched, Result(True, data=total))
+                        SignalManager.send(
+                            Signals.RepositoryFetched, Result(True, data=total)
+                        )
                         break
 
                     c.close()
                 else:
-                    SignalManager.send(Signals.RepositoryFetched, Result(False, data=total))
+                    SignalManager.send(
+                        Signals.RepositoryFetched, Result(False, data=total)
+                    )
                     logging.error(f"Could not get index for {_repo} repository")
 
             thread = RunAsync(query, _repo=repo, _data=data)
@@ -127,3 +148,5 @@ class RepositoryManager:
 
         for t in threads:
             t.join()
+
+        self.do_get_index = True

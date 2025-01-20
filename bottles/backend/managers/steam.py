@@ -24,7 +24,6 @@ from datetime import datetime
 from functools import lru_cache
 from glob import glob
 from pathlib import Path
-from typing import Union, Dict, Optional
 
 from bottles.backend.globals import Paths
 from bottles.backend.models.config import BottleConfig
@@ -49,7 +48,12 @@ class SteamManager:
     localconfig = {}
     library_folders = []
 
-    def __init__(self, config: Optional[BottleConfig] = None, is_windows: bool = False, check_only: bool = False):
+    def __init__(
+        self,
+        config: BottleConfig | None = None,
+        is_windows: bool = False,
+        check_only: bool = False,
+    ):
         self.config = config
         self.is_windows = is_windows
         self.steam_path = self.__find_steam_path()
@@ -61,12 +65,19 @@ class SteamManager:
             self.localconfig = self.__get_local_config()
             self.library_folders = self.__get_library_folders()
 
-    def __find_steam_path(self) -> Union[str, None]:
+    def __find_steam_path(self) -> str | None:
         if self.is_windows and self.config:
-            paths = [os.path.join(ManagerUtils.get_bottle_path(self.config), "drive_c/Program Files (x86)/Steam")]
+            paths = [
+                os.path.join(
+                    ManagerUtils.get_bottle_path(self.config),
+                    "drive_c/Program Files (x86)/Steam",
+                )
+            ]
         else:
             paths = [
-                os.path.join(Path.home(), ".var/app/com.valvesoftware.Steam/data/Steam"),
+                os.path.join(
+                    Path.home(), ".var/app/com.valvesoftware.Steam/data/Steam"
+                ),
                 os.path.join(Path.home(), ".local/share/Steam"),
                 os.path.join(Path.home(), ".steam/debian-installation"),
                 os.path.join(Path.home(), ".steam/steam"),
@@ -89,17 +100,17 @@ class SteamManager:
         return None
 
     @staticmethod
-    def get_acf_data(libraryfolder: str, app_id: str) -> Union[dict, None]:
+    def get_acf_data(libraryfolder: str, app_id: str) -> dict | None:
         acf_path = os.path.join(libraryfolder, f"steamapps/appmanifest_{app_id}.acf")
         if not os.path.isfile(acf_path):
             return None
 
-        with open(acf_path, "r", errors="replace") as f:
+        with open(acf_path, errors="replace") as f:
             data = SteamUtils.parse_acf(f.read())
 
         return data
 
-    def __get_local_config_path(self) -> Union[str, None]:
+    def __get_local_config_path(self) -> str | None:
         if self.userdata_path is None:
             return None
 
@@ -110,7 +121,7 @@ class SteamManager:
 
         return confs[0]
 
-    def __get_library_folders(self) -> Union[list, None]:
+    def __get_library_folders(self) -> list | None:
         if not self.steamapps_path:
             return None
 
@@ -121,17 +132,19 @@ class SteamManager:
             logging.warning("Could not find the libraryfolders.vdf file")
             return None
 
-        with open(library_folders_path, "r", errors="replace") as f:
-            _library_folders = SteamUtils.parse_acf(f.read())
+        with open(library_folders_path, errors="replace") as f:
+            _library_folders = SteamUtils.parse_vdf(f.read())
 
         if _library_folders is None or not _library_folders.get("libraryfolders"):
-            logging.warning(f"Could not parse libraryfolders.vdf")
+            logging.warning("Could not parse libraryfolders.vdf")
             return None
 
         for _, folder in _library_folders["libraryfolders"].items():
-            if not isinstance(folder, dict) \
-                    or not folder.get("path") \
-                    or not folder.get("apps"):
+            if (
+                not isinstance(folder, dict)
+                or not folder.get("path")
+                or not folder.get("apps")
+            ):
                 continue
 
             library_folders.append(folder)
@@ -139,7 +152,7 @@ class SteamManager:
         return library_folders if len(library_folders) > 0 else None
 
     @lru_cache
-    def get_appid_library_path(self, appid: str) -> Union[str, None]:
+    def get_appid_library_path(self, appid: str) -> str | None:
         if self.library_folders is None:
             return None
 
@@ -154,11 +167,11 @@ class SteamManager:
         if self.localconfig_path is None:
             return {}
 
-        with open(self.localconfig_path, "r", errors="replace") as f:
-            data = SteamUtils.parse_acf(f.read())
+        with open(self.localconfig_path, errors="replace") as f:
+            data = SteamUtils.parse_vdf(f.read())
 
         if data is None:
-            logging.warning(f"Could not parse localconfig.vdf")
+            logging.warning("Could not parse localconfig.vdf")
             return {}
 
         return data
@@ -174,38 +187,46 @@ class SteamManager:
         with open(self.localconfig_path, "w") as f:
             SteamUtils.to_vdf(VDFDict(new_data), f)
 
-        logging.info(f"Steam config saved")
+        logging.info("Steam config saved")
 
     @staticmethod
     @lru_cache
-    def get_runner_path(pfx_path: str) -> Union[tuple, None]:
+    def get_runner_path(pfx_path: str) -> str | None:
         """Get runner path from config_info file"""
         config_info = os.path.join(pfx_path, "config_info")
 
         if not os.path.isfile(config_info):
             return None
 
-        with open(config_info, "r") as f:
+        with open(config_info) as f:
             lines = f.readlines()
             if len(lines) < 10:
-                logging.error(f"{config_info} is not valid, cannot get Steam Proton path")
+                logging.error(
+                    f"{config_info} is not valid, cannot get Steam Proton path"
+                )
                 return None
 
-            proton_path = lines[2].strip()[:-5]
-            proton_name = os.path.basename(proton_path.rsplit("/", 1)[0])
+            proton_path = lines[1].strip().removesuffix("/share/fonts/")
 
-            if not os.path.isdir(proton_path):
+            if proton_path.endswith("/files"):
+                proton_path = proton_path.removesuffix("/files")
+            elif proton_path.endswith("/dist"):
+                proton_path = proton_path.removesuffix("/dist")
+
+            if not SteamUtils.is_proton(proton_path):
                 logging.error(f"{proton_path} is not a valid Steam Proton path")
                 return None
 
-            return proton_name, proton_path
+            return proton_path
 
     def list_apps_ids(self) -> dict:
         """List all apps in Steam"""
-        apps = self.localconfig.get("UserLocalConfigStore", {}) \
-            .get("Software", {}) \
-            .get("Valve", {}) \
+        apps = (
+            self.localconfig.get("UserLocalConfigStore", {})
+            .get("Software", {})
+            .get("Valve", {})
             .get("Steam", {})
+        )
         if "apps" in apps:
             apps = apps.get("apps")
         elif "Apps" in apps:
@@ -217,7 +238,9 @@ class SteamManager:
     def get_installed_apps_as_programs(self) -> list:
         """This is a Steam for Windows only function"""
         if not self.is_windows:
-            raise NotImplementedError("This function is only implemented for Windows versions of Steam")
+            raise NotImplementedError(
+                "This function is only implemented for Windows versions of Steam"
+            )
 
         apps_ids = self.list_apps_ids()
         apps = []
@@ -230,28 +253,26 @@ class SteamManager:
             if _acf is None:
                 continue
 
-            _path = _acf["AppState"].get("LauncherPath", "C:\\Program Files (x86)\\Steam\\steam.exe")
+            _path = _acf["AppState"].get(
+                "LauncherPath", "C:\\Program Files (x86)\\Steam\\steam.exe"
+            )
             _executable = _path.split("\\")[-1]
             _folder = ManagerUtils.get_exe_parent_dir(self.config, _path)
-            apps.append({
-                "executable": _executable,
-                "arguments": f"steam://run/{app_id}",
-                "name": _acf["AppState"]["name"],
-                "path": _path,
-                "folder": _folder,
-                "icon": "com.usebottles.bottles-program",
-                "dxvk": self.config.Parameters.dxvk,
-                "vkd3d": self.config.Parameters.vkd3d,
-                "dxvk_nvapi": self.config.Parameters.dxvk_nvapi,
-                "fsr": self.config.Parameters.fsr,
-                "virtual_desktop": self.config.Parameters.virtual_desktop,
-                "pulseaudio_latency": self.config.Parameters.pulseaudio_latency,
-                "id": str(uuid.uuid4()),
-            })
+            apps.append(
+                {
+                    "executable": _executable,
+                    "arguments": f"steam://run/{app_id}",
+                    "name": _acf["AppState"]["name"],
+                    "path": _path,
+                    "folder": _folder,
+                    "icon": "com.usebottles.bottles-program",
+                    "id": str(uuid.uuid4()),
+                }
+            )
 
         return apps
 
-    def list_prefixes(self) -> Dict[str, BottleConfig]:
+    def list_prefixes(self) -> dict[str, BottleConfig]:
         apps = self.list_apps_ids()
         prefixes = {}
 
@@ -272,45 +293,59 @@ class SteamManager:
             _launch_options = self.get_launch_options(appid, appdata)
             _dir_name = os.path.basename(_path)
             _acf = self.get_acf_data(_library_path, _dir_name)
-            _runner = self.get_runner_path(_path)
-            _creation_date = datetime.fromtimestamp(os.path.getctime(_path)) \
-                .strftime("%Y-%m-%d %H:%M:%S.%f")
+            _runner_path = self.get_runner_path(_path)
+            _creation_date = datetime.fromtimestamp(os.path.getctime(_path)).strftime(
+                "%Y-%m-%d %H:%M:%S.%f"
+            )
 
             if not isinstance(_acf, dict):
                 # WORKAROUND: for corrupted acf files, this is not at our fault
                 continue
 
             if _acf is None or not _acf.get("AppState"):
-                logging.warning(f"A Steam prefix was found, but there is no ACF for it: {_dir_name}, skipping…")
+                logging.warning(
+                    f"A Steam prefix was found, but there is no ACF for it: {_dir_name}, skipping…"
+                )
                 continue
 
-            if "Proton" in _acf["AppState"]["name"]:
+            if SteamUtils.is_proton(
+                os.path.join(
+                    _library_path,
+                    "steamapps/common",
+                    _acf["AppState"].get("installdir", ""),
+                )
+            ):
                 # skip Proton default prefix
+                logging.warning(
+                    f"A Steam prefix was found, but it is a Proton one: {_dir_name}, skipping…"
+                )
                 continue
 
-            if _runner is None:
-                logging.warning(f"A Steam prefix was found, but there is no Proton for it: {_dir_name}, skipping…")
+            if _runner_path is None:
+                logging.warning(
+                    f"A Steam prefix was found, but there is no Proton for it: {_dir_name}, skipping…"
+                )
                 continue
 
             _conf = BottleConfig()
-            _conf.Name = _acf["AppState"]["name"]
+            _conf.Name = _acf["AppState"].get("name", "Unknown")
             _conf.Environment = "Steam"
             _conf.CompatData = _dir_name
             _conf.Path = os.path.join(_path, "pfx")
-            _conf.Runner = _runner[0]
-            _conf.RunnerPath = _runner[1]
-            _conf.WorkingDir = os.path.join(_conf["Path"], "drive_c")
+            _conf.Runner = os.path.basename(_runner_path)
+            _conf.RunnerPath = _runner_path
+            _conf.WorkingDir = os.path.join(_conf.get("Path", ""), "drive_c")
             _conf.Creation_Date = _creation_date
             _conf.Update_Date = datetime.fromtimestamp(
-                int(_acf["AppState"]["LastUpdated"])
+                int(_acf["AppState"].get("LastUpdated", 0))
             ).strftime("%Y-%m-%d %H:%M:%S.%f")
 
             # Launch options
-            _conf.Parameters.mangohud = ("mangohud" in _launch_options["command"])
-            _conf.Parameters.gamemode = ("gamemode" in _launch_options["command"])
-            _conf.Environment_Variables = _launch_options["env_vars"]
-            for p in _launch_options["env_params"]:
-                _conf.Parameters[p] = _launch_options["env_params"][p]
+            _conf.Parameters.mangohud = "mangohud" in _launch_options.get("command", "")
+            _conf.Parameters.gamemode = "gamemode" in _launch_options.get("command", "")
+            _conf.Environment_Variables = _launch_options.get("env_vars", {})
+            for p in _launch_options.get("env_params", {}):
+                _conf.Parameters[p] = _launch_options["env_params"].get(p, "")
 
             prefixes[_dir_name] = _conf
 
@@ -336,10 +371,12 @@ class SteamManager:
             logging.warning(_fail_msg)
             return {}
 
-        apps = self.localconfig.get("UserLocalConfigStore", {}) \
-            .get("Software", {}) \
-            .get("Valve", {}) \
+        apps = (
+            self.localconfig.get("UserLocalConfigStore", {})
+            .get("Software", {})
+            .get("Valve", {})
             .get("Steam", {})
+        )
         if "apps" in apps:
             apps = apps.get("apps")
         elif "Apps" in apps:
@@ -353,51 +390,20 @@ class SteamManager:
 
         return apps[prefix]
 
-    def get_launch_options(self, prefix: str, app_conf: Optional[dict] = None) -> {}:
+    def get_launch_options(self, prefix: str, app_conf: dict | None = None) -> {}:
         if app_conf is None:
             app_conf = self.get_app_config(prefix)
 
         launch_options = app_conf.get("LaunchOptions", "")
         _fail_msg = f"Fail to get launch options from Steam for: {prefix}"
-        prefix, args = "", ""
-        env_vars = {}
-        res = {
-            "command": "",
-            "args": "",
-            "env_vars": {},
-            "env_params": {}
-        }
+        res = {"command": "", "args": "", "env_vars": {}, "env_params": {}}
 
         if len(launch_options) == 0:
             logging.debug(_fail_msg)
             return res
 
-        if "%command%" in launch_options:
-            _c = launch_options.split("%command%")
-            prefix = _c[0] if len(_c) > 0 else ""
-            args = _c[1] if len(_c) > 1 else ""
-        else:
-            args = launch_options
-
-        try:
-            prefix_list = shlex.split(prefix.strip())
-        except ValueError:
-            prefix_list = prefix.split(shlex.quote(prefix.strip()))
-
-        for p in prefix_list.copy():
-            if "=" in p:
-                k, v = p.split("=", 1)
-                v = shlex.quote(v) if " " in v else v
-                env_vars[k] = v
-                prefix_list.remove(p)
-
-        command = " ".join(prefix_list)
-        res = {
-            "command": command,
-            "args": args,
-            "env_vars": env_vars,
-            "env_params": {}
-        }
+        command, args, env_vars = SteamUtils.handle_launch_options(launch_options)
+        res = {"command": command, "args": args, "env_vars": env_vars, "env_params": {}}
         tmp_env_vars = res["env_vars"].copy()
 
         for e in tmp_env_vars:
@@ -434,11 +440,13 @@ class SteamManager:
         launch_options += f"{command} %command% {original_launch_options['args']}"
 
         try:
-            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"]["apps"][prefix]["LaunchOptions"] \
-                = launch_options
+            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"][
+                "apps"
+            ][prefix]["LaunchOptions"] = launch_options
         except (KeyError, TypeError):
-            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"]["Apps"][prefix]["LaunchOptions"] \
-                = launch_options
+            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"][
+                "Apps"
+            ][prefix]["LaunchOptions"] = launch_options
 
         self.save_local_config(self.localconfig)
 
@@ -461,7 +469,9 @@ class SteamManager:
                 del original_launch_options["env_vars"][key]
         elif key_type == "command":
             if key in original_launch_options["command"]:
-                original_launch_options["command"] = original_launch_options["command"].replace(key, "")
+                original_launch_options["command"] = original_launch_options[
+                    "command"
+                ].replace(key, "")
 
         launch_options = ""
 
@@ -470,11 +480,13 @@ class SteamManager:
 
         launch_options += f"{original_launch_options['command']} %command% {original_launch_options['args']}"
         try:
-            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"]["apps"][prefix]["LaunchOptions"] \
-                = launch_options
+            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"][
+                "apps"
+            ][prefix]["LaunchOptions"] = launch_options
         except (KeyError, TypeError):
-            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"]["Apps"][prefix]["LaunchOptions"] \
-                = launch_options
+            self.localconfig["UserLocalConfigStore"]["Software"]["Valve"]["Steam"][
+                "Apps"
+            ][prefix]["LaunchOptions"] = launch_options
 
         self.save_local_config(self.localconfig)
 
@@ -495,11 +507,7 @@ class SteamManager:
             command, _args = command.split("%command%")
             args = args + " " + _args
 
-        options = {
-            "command": command,
-            "args": args,
-            "env_vars": env_vars
-        }
+        options = {"command": command, "args": args, "env_vars": env_vars}
         self.set_launch_options(pfx, options)
         self.config = config
         return config
@@ -535,7 +543,7 @@ class SteamManager:
             "DevkitGameID": "",
             "DevkitOverrideAppID": "",
             "LastPlayTime": 0,
-            "tags": {"0": "Bottles"}
+            "tags": {"0": "Bottles"},
         }
 
         for c in confs:

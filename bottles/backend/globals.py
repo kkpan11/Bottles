@@ -17,14 +17,14 @@
 
 import os
 import shutil
-from functools import lru_cache
 from pathlib import Path
-from typing import Dict
+from bottles.backend.utils import yaml, json
 
 
-@lru_cache
 class Paths:
-    xdg_data_home = os.environ.get("XDG_DATA_HOME", os.path.join(Path.home(), ".local/share"))
+    xdg_data_home = os.environ.get(
+        "XDG_DATA_HOME", os.path.join(Path.home(), ".local/share")
+    )
 
     # Icon paths
     icons_user = f"{xdg_data_home}/icons"
@@ -79,9 +79,14 @@ vkbasalt_available = Paths.is_vkbasalt_available()
 mangohud_available = shutil.which("mangohud") or False
 obs_vkc_available = shutil.which("obs-vkcapture") or False
 vmtouch_available = shutil.which("vmtouch") or False
+base_version = ""
+if os.path.isfile("/app/manifest.json"):
+    with open("/app/manifest.json", encoding="utf-8") as file:
+        base_version = (
+            json.load(file)  # type: ignore
+            .get("base-version", "")
+            .removeprefix("stable-")
+        )
 
 # encoding detection correction, following windows defaults
-locale_encodings: Dict[str, str] = {
-    'ja_JP': 'cp932',
-    'zh_CN': 'gbk'
-}
+locale_encodings: dict[str, str] = {"ja_JP": "cp932", "zh_CN": "gbk"}

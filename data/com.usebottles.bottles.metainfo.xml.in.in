@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <id>@APP_ID@</id>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
+  <name>Bottles</name>
+  <summary>Run Windows software</summary>
+  <developer id="@DEVELOPER_ID@">
+    <name translatable="no">The Bottles Contributors</name>
+  </developer>
+  <branding>
+    <color type="primary" scheme_preference="light">#f4c8cb</color>
+    <color type="primary" scheme_preference="dark">#892119</color>
+  </branding>
+  <description>
+    <p>Bottles lets you run Windows software on Linux, such as applications and games. It introduces a workflow that helps you organize by categorizing each software to your liking. Bottles provides several tools and integrations to help you manage and optimize your applications.</p>
+    <p>Features:</p>
+    <ul>
+      <li>Use pre-configured environments as a base</li>
+      <li>Change runners for any bottle</li>
+      <li>Various optimizations and options for gaming</li>
+      <li>Repair in case software or bottle is broken</li>
+      <li>Install various known dependencies</li>
+      <li>Integrated task manager to manage and monitor processes</li>
+      <li>Backup and restore</li>
+    </ul>
+  </description>
+  <provides>
+    <mediatype>application/x-ms-dos-executable</mediatype>
+    <mediatype>application/x-msi</mediatype>
+    <mediatype>application/x-ms-shortcut</mediatype>
+    <mediatype>application/x-wine-extension-msp</mediatype>
+  </provides>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/bottlesdevs/Bottles/main/data/screenshots/1.png</image>
+      <caption>Bottles List Page</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/bottlesdevs/Bottles/main/data/screenshots/2.png</image>
+      <caption>Library Page</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/bottlesdevs/Bottles/main/data/screenshots/3.png</image>
+      <caption>Create New Bottle</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/bottlesdevs/Bottles/main/data/screenshots/4.png</image>
+      <caption>Bottle Details Page</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/bottlesdevs/Bottles/main/data/screenshots/5.png</image>
+      <caption>Bottle Settings Page</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/bottlesdevs/Bottles/main/data/screenshots/6.png</image>
+      <caption>Installers Page</caption>
+    </screenshot>
+  </screenshots>
+  <translation type="gettext">@APP_ID@</translation>
+  <content_rating type="oars-1.1"/>
+  <url type="homepage">https://usebottles.com</url>
+  <url type="bugtracker">https://github.com/bottlesdevs/Bottles/issues</url>
+  <url type="help">https://docs.usebottles.com</url>
+  <url type="donation">https://usebottles.com/funding</url>
+  <url type="translate">https://hosted.weblate.org/engage/bottles</url>
+  <url type="vcs-browser">https://github.com/bottlesdevs/Bottles</url>
+  <url type="contribute">https://github.com/bottlesdevs/Bottles/blob/main/CONTRIBUTING.md</url>
+  <recommends>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </recommends>
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+  <releases>
+    <release version="51.18" date="2025-01-14">
+      <description translatable="no">
+        <ul>
+          <li>Add Ctrl+N shortcut for creating a new bottle</li>
+          <li>Add Shortcuts window</li>
+          <li>Remove support for the runtime sandbox</li>
+          <li>Add mnemonics in main menu</li>
+          <li>Polish and rework the new bottle dialog</li>
+          <li>Polish and rework the environment variables dialog</li>
+          <li>Fix CSS warnings in the terminal</li>
+          <li>Fix bug where Bottles would not start when running the --executable flag in the terminal</li>
+        </ul>
+      </description>
+    </release>
+    <release version="51.17" date="2024-12-14">
+      <description translatable="no">
+        <p>Fixed a regression that makes the bottle's preferences page blank in some cases</p>
+      </description>
+    </release>
+    <release version="51.16" date="2024-12-12">
+      <description translatable="no">
+        <p>Fixed an issue where clicking on a snapshot instantly started the restore process</p>
+        <p>Fixed a crash in bottles-cli when neither --executable nor --program was specified</p>
+        <p>Fixed an issue where launch options were not honored when applications were launched from Desktop Entries</p>
+        <p>Added an option to alphabetize the programs list</p>
+        <p>Fixed an issue where deleting a bottle created on a different drive did not delete cache directories</p>
+        <p>Added a functional minimal MangoHud settings window</p>
+        <p>Improved Flatpak manifest and added checks for Flatpak environments</p>
+        <p>Added an error dialog when running outside of sandboxed formats</p>
+        <p>Reworked data files and allowed custom app IDs</p>
+        <p>Bumped Meson requirement and ported the "devel" option to combo options</p>
+        <p>Improved formatting and functionality in Blueprint and UI files</p>
+      </description>
+    </release>
+    <release version="51.15" date="2024-10-14">
+      <description translatable="no">
+        <p>Fixed a bug where the "win11" option was not available</p>
+      </description>
+    </release>
+    <release version="51.14" date="2024-10-12">
+      <description translatable="no">
+        <p>New "Native" Force Stop all Processes option</p>
+        <p>Provide bottle Path as env var</p>
+        <p>Fix "bottles:run/" uri processing (#3444)</p>
+        <p>Ability to search steam managed bottles</p>
+        <p>Fix bottles with a different name and path weren't runnable through bottle picker (#3451)</p>
+        <p>Win11 support</p>
+        <p>Add Pre-Run script to launch options (#3336)</p>
+        <p>Updated GNOME Runtime to 47</p>
+        <p>Provide subtitles for envs</p>
+        <p>Support for personal repos (#3464)</p>
+        <p>Update translations</p>
+      </description>
+    </release>
+    <release version="51.13" date="2024-07-10">
+      <description translatable="no">
+        <p>Fixed crash on starting executables via the file manager [#3427]</p>
+      </description>
+    </release>
+    <release version="51.12" date="2024-07-09">
+      <description translatable="no">
+        <p>Support d3d8 via dxvk</p>
+        <p>Removed @lru_cache decorator from the Paths class, plus minor typing fixes</p>
+        <p>Fixed crash on startup [#3329]</p>
+        <p>Updated GNOME runtime in manifest</p>
+        <p>Moved chattr_f function to appropriate class</p>
+        <p>Improved performance by using case-fold for drive_c when available</p>
+        <p>Fixed Gamescope options arguments</p>
+        <p>Added option to skip checksum when installing dependencies [#3278]</p>
+        <p>Fixed issue where bottles with spaces in name couldn't be run through bottle picker [#3287]</p>
+        <p>Fixed issue where kgx Launch with terminal was not working [#3289]</p>
+        <p>Repaired SyntaxWarning in generic.py (invalid escape sequence '\d') when starting bottles from CLI</p>
+        <p>Fixed misspelled media type (application/x-ms-dos-executable)</p>
+        <p>Switched to add_pattern from add_mime_type to resolve file filter issues on certain Linux distributions</p>
+        <p>Added TryExec to desktop entry</p>
+      </description>
+    </release>
+    <release version="51.11" date="2024-02-18">
+      <description translatable="no">
+        <p>Fix running programs via CLI</p>
+        <p>Fix handling of empty program arguments</p>
+        <p>Removed obsolete faudio dependency from the environment</p>
+        <p>Update translations</p>
+        <p>Various bug fixes and refactoring</p>
+      </description>
+    </release>
+    <release version="51.10" date="2023-09-27">
+      <description translatable="no">
+        <p>Clean FSR settings</p>
+        <p>Improve bad connections handling</p>
+        <p>Update Flatpak runtime</p>
+        <p>Update translations</p>
+        <p>Various bug fixes</p>
+      </description>
+    </release>
+    <release version="51.9" date="2023-08-21">
+      <description translatable="no">
+        <p>Fix runners and components from not showing when prereleases are off</p>
+        <p>Fix Steam runtime compatibility with Wine runners</p>
+      </description>
+    </release>
+    <release version="51.8" date="2023-08-21">
+      <description translatable="no">
+        <p>A few bug fixes</p>
+      </description>
+    </release>
+    <release version="51.6" date="2023-05-03">
+      <description translatable="no">
+        <p>Support for the double-DLL VKD3D</p>
+        <p>Updated Flatpak runtime</p>
+        <p>Minor improvement and fixes to the library</p>
+        <p>Fix the Steam link not being correct</p>
+        <p>Download stable component by default</p>
+        <p>Make window remember dimensions</p>
+      </description>
+    </release>
+    <release version="51.5" date="2023-02-23">
+      <description translatable="no">
+        <p>Update metadata information</p>
+      </description>
+    </release>
+    <release version="51.4" date="2023-02-23">
+      <description translatable="no">
+        <p>Add more update information and correct release notes version</p>
+      </description>
+    </release>
+    <release version="51.3" date="2023-02-23">
+      <description translatable="no">
+        <p>Fixed "Add to Steam" button</p>
+        <p>Fixed BottleConfig being not serializable</p>
+        <p>Fixed Patool double extraction failing</p>
+      </description>
+    </release>
+    <release version="51.2" date="2023-02-21">
+      <description translatable="no">
+        <p>Correct version</p>
+      </description>
+    </release>
+    <release version="51.1" date="2023-02-20">
+      <description translatable="no">
+        <p>Fix crash when creating a bottle</p>
+      </description>
+    </release>
+    <release version="51.0" date="2023-02-20">
+      <description translatable="no">
+        <p>Major change: Redesign New Bottle interface</p>
+        <p>Quality of life improvements:</p>
+        <ul>
+          <li>Replace emote-love icon with a library in library page</li>
+          <li>Add toast for "Run Executable"</li>
+        </ul>
+        <p>Bug fixes:</p>
+        <ul>
+          <li>Adding a shortcut to Steam resulted in an error</li>
+          <li>Importing backups resulted an error</li>
+          <li>Steam Runtime automatically enabled when using wine-ge-custom</li>
+          <li>Various library-related fixes, like empty covers, and crashes related to missing entries</li>
+          <li>Fix various issues related to text encoding</li>
+        </ul>
+      </description>
+    </release>
+    <release version="50.2" date="2023-01-18">
+      <description translatable="no">
+        <ul>
+          <li>Fix error when downloading if Bottles isn't run from terminal</li>
+        </ul>
+      </description>
+    </release>
+    <release version="50.1" date="2023-01-15">
+      <description translatable="no">
+        <ul>
+          <li>Correct version date</li>
+          <li>Hide NVIDIA-related critical errors on non-NVIDIA systems</li>
+        </ul>
+      </description>
+    </release>
+    <release version="50.0" date="2023-01-14">
+      <description translatable="no">
+        <ul>
+          <li>Gamescope improvements and fixes</li>
+          <li>Dependency installation is faster and more stable</li>
+          <li>The health check has more information for faster debugging</li>
+          <li>NVAPI has a lot of fixes and is more stable, should now work properly</li>
+          <li>Fix crash when downloading a component</li>
+          <li>Backend code improvement by avoiding spin-lock</li>
+          <li>More variables for installer scripting</li>
+          <li>Fix onboard dialog showing "All ready" while it was not ready</li>
+          <li>Improvement to build system</li>
+          <li>Enabling VKD3D by default when creating bottles for gaming</li>
+          <li>Fix crashes when reading Steam files with bad encodings</li>
+          <li>Fix components not updated correctly in the UI after installation/uninstallation</li>
+          <li>More FSR fixes</li>
+          <li>Fix the issue when a program closes after it was launched from "Run executable"</li>
+          <li>and many, many, many more!</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+</component>

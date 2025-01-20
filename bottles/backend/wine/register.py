@@ -17,13 +17,11 @@
 
 import os
 import uuid
-from typing import Optional
 
 from bottles.backend.utils import json
 
 
 class WinRegister:
-
     def __init__(self):
         self.path = None
         self.diff = {}
@@ -41,7 +39,7 @@ class WinRegister:
 
     def __get_header(self):
         """Return the header of the registry file."""
-        with open(self.path, "r") as reg:
+        with open(self.path) as reg:
             header = reg.readlines(2)
             return header
 
@@ -61,26 +59,25 @@ class WinRegister:
             print("Total keys:", len(regs))
 
             for reg in regs:
-
                 if cur_line <= 2:
-                    '''
+                    """
                     Skip the first 4 lines which are the
                     register header.
-                    '''
+                    """
                     cur_line += 1
                     continue
 
                 for line in reg.split("\n"):
-                    '''
+                    """
                     Following checks will check the line format, when
                     one check succeed, continue to the next line.
-                    '''
+                    """
 
                     if line.startswith("["):
-                        '''
+                        """
                         Check if line format corresponds to a key, if
                         true, create a new key in the dictionary.
-                        '''
+                        """
                         key = line.strip("[]")
                         if any(key.startswith(ex) for ex in exclude):
                             key = None
@@ -89,21 +86,21 @@ class WinRegister:
                         _dict[key] = {}
                         continue
                     elif line not in ["", "\n"]:
-                        '''
+                        """
                         Check if line format corresponds to a value, if
                         true get key and value and append to last key.
-                        '''
+                        """
                         if key is None:
                             continue
 
                         _key = line.split("=")[0]
-                        _value = line[len(_key) + 1:]
+                        _value = line[len(_key) + 1 :]
                         _dict[key][_key] = _value
                         continue
 
         return _dict
 
-    def compare(self, path: Optional[str] = None, register: object = None):
+    def compare(self, path: str | None = None, register: object = None):
         """Compare the current register with the given path or register."""
         if path is not None:
             register = WinRegister().new(path)
@@ -114,19 +111,17 @@ class WinRegister:
         self.diff = diff
         return diff
 
-    def __get_diff(self, register: 'WinRegister'):
+    def __get_diff(self, register: "WinRegister"):
         """Return the difference between the current register and the given one."""
         diff = {}
         other_reg = register.reg_dict
 
         for key in self.reg_dict:
-
             if key not in other_reg:
                 diff[key] = self.reg_dict[key]
                 continue
 
             for _key in self.reg_dict[key]:
-
                 if _key not in other_reg[key]:
                     diff[key] = self.reg_dict[key]
                     break
@@ -137,7 +132,7 @@ class WinRegister:
 
         return diff
 
-    def update(self, diff: Optional[dict] = None):
+    def update(self, diff: dict | None = None):
         """Update the current register with the given diff."""
         if diff is None:
             diff = self.diff  # use last diff
@@ -146,9 +141,9 @@ class WinRegister:
             self.reg_dict[key] = diff[key]
 
         if os.path.exists(self.path):
-            '''
+            """
             Make a backup before overwriting the register.
-            '''
+            """
             os.rename(self.path, f"{self.path}.{uuid.uuid4()}.bak")
 
         with open(self.path, "w") as reg:

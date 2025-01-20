@@ -1,5 +1,3 @@
-from typing import NewType, Optional
-
 from bottles.backend.logger import Logger
 from bottles.backend.wine.wineprogram import WineProgram
 
@@ -11,12 +9,12 @@ class MsiExec(WineProgram):
     command = "msiexec"
 
     def install(
-            self,
-            pkg_path: str,  # or product code
-            args: str = "",
-            terminal: bool = False,
-            cwd: Optional[str] = None,
-            environment: Optional[dict] = None
+        self,
+        pkg_path: str,  # or product code
+        args: str = "",
+        terminal: bool = False,
+        cwd: str | None = None,
+        environment: dict | None = None,
     ):
         args = f"/i {pkg_path} {args}"
 
@@ -27,23 +25,23 @@ class MsiExec(WineProgram):
             environment=environment,
             terminal=terminal,
             cwd=cwd,
-            action_name="install"
+            action_name="install",
         )
 
     def repair(
-            self,
-            pkg_path: str,
-            if_missing: bool = False,
-            if_missing_or_outdated: bool = False,
-            if_missing_or_outdated_or_same: bool = False,
-            if_missing_or_different: bool = False,
-            if_missing_or_hash_fail: bool = False,
-            force_all: bool = False,
-            all_user_registry_keys: bool = False,
-            all_computer_registry_keys: bool = False,
-            all_shortcuts: bool = False,
-            recache: bool = False,
-            cwd: Optional[str] = None
+        self,
+        pkg_path: str,
+        if_missing: bool = False,
+        if_missing_or_outdated: bool = False,
+        if_missing_or_outdated_or_same: bool = False,
+        if_missing_or_different: bool = False,
+        if_missing_or_hash_fail: bool = False,
+        force_all: bool = False,
+        all_user_registry_keys: bool = False,
+        all_computer_registry_keys: bool = False,
+        all_shortcuts: bool = False,
+        recache: bool = False,
+        cwd: str | None = None,
     ):
         """
         NOTICE: I have not been able to use the repair in any way, it seems to show
@@ -75,36 +73,55 @@ class MsiExec(WineProgram):
         args += f" {pkg_path}"
 
         self.launch(
-            args=args,
-            communicate=True,
-            minimal=True,
-            cwd=cwd,
-            action_name="repair"
+            args=args, communicate=True, minimal=True, cwd=cwd, action_name="repair"
         )
 
-    def uninstall(self, pkg_path: str,  cwd: Optional[str] = None):
+    def uninstall(self, pkg_path: str, cwd: str | None = None):
         args = f"/x {pkg_path}"
-        self.launch(args=args, communicate=True, minimal=True, cwd=cwd, action_name="uninstall")
+        self.launch(
+            args=args, communicate=True, minimal=True, cwd=cwd, action_name="uninstall"
+        )
 
-    def apply_patch(self, patch: str, update: bool = False, cwd: Optional[str] = None):
+    def apply_patch(self, patch: str, update: bool = False, cwd: str | None = None):
         args = f"/p {patch}"
         if update:
             args = f" /update {patch}"
 
-        self.launch(args=args, communicate=True, minimal=True, cwd=cwd, action_name="apply_path")
+        self.launch(
+            args=args, communicate=True, minimal=True, cwd=cwd, action_name="apply_path"
+        )
 
-    def uninstall_patch(self, patch: str, product: Optional[str] = None, cwd: Optional[str] = None):
+    def uninstall_patch(
+        self, patch: str, product: str | None = None, cwd: str | None = None
+    ):
         args = f"/uninstall {patch}"
         if product:
             args += f" /package {product}"
 
-        self.launch(args=args, communicate=True, minimal=True, cwd=cwd, action_name="uninstall_patch")
+        self.launch(
+            args=args,
+            communicate=True,
+            minimal=True,
+            cwd=cwd,
+            action_name="uninstall_patch",
+        )
 
-    def register_module(self, module: str, cwd: Optional[str] = None):
+    def register_module(self, module: str, cwd: str | None = None):
         args = f"/y {module}"
-        self.launch(args=args, communicate=True, minimal=True, cwd=cwd, action_name="register_module")
+        self.launch(
+            args=args,
+            communicate=True,
+            minimal=True,
+            cwd=cwd,
+            action_name="register_module",
+        )
 
-    def unregister_module(self, module: str, cwd: Optional[str] = None):
+    def unregister_module(self, module: str, cwd: str | None = None):
         args = f"/z {module}"
-        self.launch(args=args, communicate=True, minimal=True, cwd=cwd, action_name="unregister_module")
-
+        self.launch(
+            args=args,
+            communicate=True,
+            minimal=True,
+            cwd=cwd,
+            action_name="unregister_module",
+        )

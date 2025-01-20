@@ -18,7 +18,6 @@
 import os
 from datetime import datetime
 from gettext import gettext as _
-from typing import Optional
 
 import pycurl
 
@@ -35,15 +34,19 @@ class ConnectionUtils:
     Bottle's website. If the connection is offline, the user will be
     notified and False will be returned, otherwise True.
     """
-    _status: Optional[bool] = None
+
+    _status: bool | None = None
     last_check = None
 
     def __init__(self, force_offline=False, **kwargs):
         super().__init__(**kwargs)
         self.force_offline = force_offline
+        self.do_check_connection = True
+        self.aborted_connections = 0
+        SignalManager.connect(Signals.ForceStopNetworking, self.stop_check)
 
     @property
-    def status(self) -> Optional[bool]:
+    def status(self) -> bool | None:
         return self._status
 
     @status.setter
@@ -54,7 +57,18 @@ class ConnectionUtils:
         self._status = value
         SignalManager.send(Signals.NetworkStatusChanged, Result(status=self.status))
 
-    def check_connection(self, show_notification=False) -> bool:
+    def __curl_progress(self, _download_t, _download_d, _upload_t, _upload_d):
+        if self.do_check_connection:
+            return pycurl.E_OK
+        else:
+            self.aborted_connections += 1
+            return pycurl.E_ABORTED_BY_CALLBACK
+
+    def stop_check(self, res: Result):
+        if res.status:
+            self.do_check_connection = False
+
+    def check_connection(self, show_notification=False) -> bool | None:
         """check network status, send result through signal NetworkReady and return"""
         if self.force_offline or "FORCE_OFFLINE" in os.environ:
             logging.info("Forcing offline mode")
@@ -63,9 +77,11 @@ class ConnectionUtils:
 
         try:
             c = pycurl.Curl()
-            c.setopt(c.URL, 'https://ping.usebottles.com')
+            c.setopt(c.URL, "https://ping.usebottles.com")
             c.setopt(c.FOLLOWLOCATION, True)
             c.setopt(c.NOBODY, True)
+            c.setopt(c.NOPROGRESS, False)
+            c.setopt(c.XFERINFOFUNCTION, self.__curl_progress)
             c.perform()
 
             if c.getinfo(pycurl.HTTP_CODE) != 200:
@@ -76,12 +92,19 @@ class ConnectionUtils:
         except Exception:
             logging.warning("Connection status: offline …")
             if show_notification:
-                SignalManager.send(Signals.GNotification, Result(True, Notification(
-                    title="Bottles",
-                    text=_("You are offline, unable to download."),
-                    image="network-wireless-disabled-symbolic"
-                )))
+                SignalManager.send(
+                    Signals.GNotification,
+                    Result(
+                        True,
+                        Notification(
+                            title="Bottles",
+                            text=_("You are offline, unable to download."),
+                            image="network-wireless-disabled-symbolic",
+                        ),
+                    ),
+                )
             self.last_check = datetime.now()
             self.status = False
         finally:
+            self.do_check_connection = True
             return self.status

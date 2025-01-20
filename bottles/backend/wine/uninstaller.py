@@ -1,5 +1,3 @@
-from typing import NewType, Optional
-
 from bottles.backend.logger import Logger
 from bottles.backend.wine.wineprogram import WineProgram
 
@@ -10,7 +8,7 @@ class Uninstaller(WineProgram):
     program = "Wine Uninstaller"
     command = "uninstaller"
 
-    def get_uuid(self, name: Optional[str] = None):
+    def get_uuid(self, name: str | None = None):
         args = " --list"
 
         if name is not None:
@@ -18,7 +16,7 @@ class Uninstaller(WineProgram):
 
         return self.launch(args=args, communicate=True, action_name="get_uuid")
 
-    def from_uuid(self, uuid: Optional[str] = None):
+    def from_uuid(self, uuid: str | None = None):
         args = ""
 
         if uuid not in [None, ""]:
@@ -29,11 +27,11 @@ class Uninstaller(WineProgram):
     def from_name(self, name: str):
         res = self.get_uuid(name)
         if not res.ready:
-            '''
+            """
             No UUID found, at this point it is safe to assume that the
             program is not installed
             ref: <https://github.com/bottlesdevs/Bottles/issues/2237>
-            '''
+            """
             return
         uuid = res.data.strip()
         for _uuid in uuid.splitlines():

@@ -17,53 +17,58 @@
 
 import sys
 import gi
-import os
 import gettext
 import locale
 import webbrowser
-import subprocess
 from os import path
 
-gi.require_version('Gtk', '4.0')
-gi.require_version('Adw', '1')
-gi.require_version('GtkSource', '5')
-#gi.require_version("Xdp", "1.0")
-#gi.require_version("XdpGtk4", "1.0")
-
-from gi.repository import Gtk, Gio, Gdk, GLib, GObject, Adw
-
-from bottles.frontend.params import *
 from bottles.backend.logger import Logger
-from bottles.frontend.windows.main_window import MainWindow
-from bottles.frontend.views.preferences import PreferencesWindow
 from bottles.backend.health import HealthChecker
+from bottles.frontend.params import (
+    APP_ID,
+    APP_MAJOR_VERSION,
+    APP_MINOR_VERSION,
+    APP_VERSION,
+)
+
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
+gi.require_version("GtkSource", "5")
+gi.require_version("Xdp", "1.0")
+# gi.require_version("XdpGtk4", "1.0")
+
+# ruff: noqa: E402
+from gi.repository import Gio, GLib, GObject, Adw  # type: ignore
+from bottles.frontend.window import BottlesWindow
+from bottles.frontend.preferences import PreferencesWindow
+
 
 logging = Logger()
 
 # region Translations
-'''
-This code snippet searches for and uploads translations to different 
-directories, depending on your production or development environment. 
+"""
+This code snippet searches for and uploads translations to different
+directories, depending on your production or development environment.
 The function _() can be used to create and retrieve translations.
-'''
-share_dir = path.join(sys.prefix, 'share')
-base_dir = '.'
+"""
+share_dir = path.join(sys.prefix, "share")
+base_dir = "."
 
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     base_dir = path.dirname(sys.executable)
-    share_dir = path.join(base_dir, 'share')
+    share_dir = path.join(base_dir, "share")
 elif sys.argv[0]:
     exec_dir = path.dirname(path.realpath(sys.argv[0]))
     base_dir = path.dirname(exec_dir)
-    share_dir = path.join(base_dir, 'share')
+    share_dir = path.join(base_dir, "share")
 
     if not path.exists(share_dir):
         share_dir = base_dir
 
-locale_dir = path.join(share_dir, 'locale')
+locale_dir = path.join(share_dir, "locale")
 
 if not path.exists(locale_dir):  # development
-    locale_dir = path.join(base_dir, 'build', 'mo')
+    locale_dir = path.join(base_dir, "build", "mo")
 
 locale.bindtextdomain("bottles", locale_dir)
 locale.textdomain("bottles")
@@ -82,15 +87,17 @@ class Bottles(Adw.Application):
 
     def __init__(self):
         super().__init__(
-            application_id='com.usebottles.bottles',
+            application_id=APP_ID,
+            resource_base_path="/com/usebottles/bottles",
             flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE,
-            register_session=True
+            register_session=True,
         )
-        self.__create_action('quit', self.__quit, ['<primary>q', '<primary>w'])
-        self.__create_action('about', self.__show_about_window)
-        self.__create_action('import', self.__show_importer_view, ['<primary>i'])
-        self.__create_action('preferences', self.__show_preferences, ['<primary>comma'])
-        self.__create_action('help', self.__help, ['F1'])
+        self.__create_action("quit", self.__quit, ["<primary>q", "<primary>w"])
+        self.__create_action("about", self.__show_about_dialog)
+        self.__create_action("import", self.__show_importer_view, ["<primary>i"])
+        self.__create_action("preferences", self.__show_preferences, ["<primary>comma"])
+        self.__create_action("help", self.__help, ["F1"])
+        self.__create_action("new", self.__new_bottle, ["<primary>n"])
 
         self.__register_arguments()
 
@@ -110,7 +117,7 @@ class Bottles(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.NONE,
             _("Show version"),
-            None
+            None,
         )
         self.add_main_option(
             "executable",
@@ -118,7 +125,7 @@ class Bottles(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.STRING,
             _("Executable path"),
-            None
+            None,
         )
         self.add_main_option(
             "lnk",
@@ -126,7 +133,7 @@ class Bottles(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.STRING,
             _("lnk path"),
-            None
+            None,
         )
         self.add_main_option(
             "bottle",
@@ -134,7 +141,7 @@ class Bottles(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.STRING,
             _("Bottle name"),
-            None
+            None,
         )
         self.add_main_option(
             "arguments",
@@ -142,7 +149,7 @@ class Bottles(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.STRING,
             _("Pass arguments"),
-            None
+            None,
         )
         self.add_main_option(
             GLib.OPTION_REMAINING,
@@ -150,7 +157,7 @@ class Bottles(Adw.Application):
             GLib.OptionFlags.NONE,
             GLib.OptionArg.STRING_ARRAY,
             "URI",
-            None
+            None,
         )
 
     def do_command_line(self, command):
@@ -173,15 +180,21 @@ class Bottles(Adw.Application):
             self.arg_bottle = commands.lookup_value("bottle").get_string()
 
         if not self.arg_exe:
-            '''
+            """
             If no executable is specified, look if it was passed without
             the --executable argument.
-            '''
+            """
             for a in sys.argv:
-                if a.endswith(('.exe', '.msi', '.bat', '.lnk')):
+                if a.endswith((".exe", ".msi", ".bat", ".lnk")):
                     self.arg_exe = a
+                    logging.info(
+                        _("Launching with executable: {0}").format(a),
+                    )
 
         uri = commands.lookup_value(GLib.OPTION_REMAINING)
+        logging.info(
+            _("Launching with URI: {0}").format(uri),
+        )
         if uri:
             return self.__process_uri(uri)
 
@@ -194,22 +207,31 @@ class Bottles(Adw.Application):
         e.g. xdg-open bottles:run/<bottle>/<program>
         """
         uri = uri[0]
-        if os.path.exists(uri):
-            from bottles.frontend.windows.bottlepicker import BottlePickerDialog
+
+        if uri.startswith("bottles:run/"):
+            if len(uri.split("/")) != 3:
+                logging.error(_("Invalid URI (syntax: bottles:run/<bottle>/<program>)"))
+                return False
+
+            uri = uri.replace("bottles:run/", "")
+            bottle, program = uri.split("/")
+
+            import subprocess
+
+            subprocess.Popen(["bottles-cli", "run", "-b", bottle, "-p", program])
+            return 0
+
+        try:
+            from bottles.frontend.bottle_picker_dialog import BottlePickerDialog
+
             dialog = BottlePickerDialog(application=self, arg_exe=uri)
             dialog.present()
             return 0
-
-        _wrong_uri_error = _("Invalid URI (syntax: bottles:run/<bottle>/<program>)")
-        if not len(uri) > 0 or not uri.startswith('bottles:run/') or len(uri.split('/')) != 3:
-            print(_wrong_uri_error)
+        except Exception as e:
+            logging.error(
+                _("Error while processing URI: {0}").format(e),
+            )
             return False
-
-        uri = uri.replace('bottles:run/', '')
-        bottle, program = uri.split('/')
-
-        import subprocess
-        subprocess.Popen(['bottles-cli', 'run', '-b', bottle, '-p', program])
 
     def do_startup(self):
         """
@@ -224,24 +246,28 @@ class Bottles(Adw.Application):
         This function is called when the application is activated.
         """
 
+        logging.info(
+            _("[Activate] request received."),
+        )
+
         # create the main window
         Adw.Application.do_activate(self)
         win = self.props.active_window
         if not win:
-            win = MainWindow(
-                application=self,
-                arg_bottle=self.arg_bottle
-            )
+            win = BottlesWindow(application=self, arg_bottle=self.arg_bottle)
         self.win = win
+
         win.present()
 
-    @staticmethod
-    def __quit(action=None, param=None):
+    def __quit(self, *args):
         """
         This function close the application.
         It is used by the [Ctrl+Q] shortcut.
         """
-        logging.info(_("[Quit] request received."), )
+        logging.info(
+            _("[Quit] request received."),
+        )
+        self.win.on_close_request()
         quit()
 
     @staticmethod
@@ -250,7 +276,9 @@ class Bottles(Adw.Application):
         This function open the documentation in the user's default browser.
         It is used by the [F1] shortcut.
         """
-        logging.info(_("[Help] request received."), )
+        logging.info(
+            _("[Help] request received."),
+        )
         webbrowser.open_new_tab("https://docs.usebottles.com")
 
     def __refresh(self, action=None, param=None):
@@ -258,44 +286,57 @@ class Bottles(Adw.Application):
         This function refresh the user bottle list.
         It is used by the [Ctrl+R] shortcut.
         """
-        logging.info(_("[Refresh] request received."), )
+        logging.info(
+            _("[Refresh] request received."),
+        )
         self.win.manager.update_bottles()
 
     def __show_preferences(self, *args):
         preferences_window = PreferencesWindow(self.win)
         preferences_window.present()
 
+    def __new_bottle(self, *args):
+        self.win.show_add_view()
+
     def __show_importer_view(self, widget=False, *args):
         self.win.main_leaf.set_visible_child(self.win.page_importer)
 
-    def __show_about_window(self, *_args):
-        release_notes = """
-            <p>Redesign New Bottle interface</p>
-            <p>Quality of life improvements:</p>
-            <ul>
-              <li>Replace emote-love icon with library in library page</li>
-              <li>Display toast for "Run Executable"</li>
-              <li>Runners are sorted according through a priority list; from the highest to the lowest priority: Soda, Caffe, Vaniglia, Lutris, others</li>
-              <li>Bottles can now be named without any character restrictions</li>
-              <li>Notifications will be sent when a bottle has been created (will only happen when unfocused)</li>
-            </ul>
-            <p>Bug fixes:</p>
-            <ul>
-              <li>Adding shortcut to Steam resulted an error</li>
-              <li>Importing backups resulted an error</li>
-              <li>Steam Runtime automatically enabled when using wine-ge-custom</li>
-              <li>Various library related fixes, like empty covers, and crashes related to missing entries</li>
-              <li>Fix various issues related to text encoding</li>
-            </ul>
-        """
-        builder = Gtk.Builder.new_from_resource("/com/usebottles/bottles/about.ui")
-        about_window = builder.get_object("about_window")
-        about_window.set_debug_info(HealthChecker().get_results(plain=True))
-        about_window.add_link(_("Donate"), "https://usebottles.com/funding")
-        about_window.set_version(APP_VERSION)
-        about_window.set_application_name(APP_NAME)
-        about_window.set_application_icon(APP_ICON)
-        about_window.add_acknowledgement_section(
+    def __show_about_dialog(self, *_args):
+        developers = [
+            "Mirko Brombin https://github.com/mirkobrombin",
+            "hthre7 https://github.com/hthre7",
+            "Kekun https://github.com/Kekun",
+            "Sonny Piers https://github.com/sonnyp",
+            "BrainBlasted https://github.com/BrainBlasted",
+            "Francesco Masala <mail@francescomasala.me>",
+            "Hari Rana (TheEvilSkeleton) https://theevilskeleton.gitlab.io",
+            "axtlos https://axtloss.github.io",
+            "Oro https://github.com/orowith2os",
+            "gregorni https://gitlab.com/gregorni",
+        ]
+
+        artists = [
+            "Marco Montini https://github.com/marckniack",
+            "Noëlle https://github.com/jannuary",
+            "Alvar Lagerlöf https://github.com/alvarlagerlof",
+            "Ezekiel Smith https://github.com/ZekeSmith",
+        ]
+
+        about_dialog = Adw.AboutDialog.new_from_appdata(
+            "/com/usebottles/bottles/appdata",
+            f"{APP_MAJOR_VERSION}.{APP_MINOR_VERSION}",
+        )
+        about_dialog.set_developers(developers)
+        about_dialog.set_translator_credits(_("translator_credits"))
+        about_dialog.set_artists(artists)
+        about_dialog.set_debug_info(HealthChecker().get_results(plain=True))
+        about_dialog.add_link(_("Donate"), "https://usebottles.com/funding")
+        about_dialog.set_copyright(
+            _("Copyright © 2017 {developer_name}").format(
+                developer_name=about_dialog.get_developer_name()
+            )
+        )
+        about_dialog.add_acknowledgement_section(
             _("Third-Party Libraries and Special Thanks"),
             [
                 "DXVK https://github.com/doitsujin/dxvk",
@@ -318,23 +359,20 @@ class Bottles(Adw.Application):
                 "icoextract https://github.com/jlu5/icoextract",
                 "vmtouch https://github.com/hoytech/vmtouch",
                 "FVS https://github.com/mirkobrombin/FVS",
-                "pathvalidate https://github.com/thombashi/pathvalidate"
-            ]
+                "pathvalidate https://github.com/thombashi/pathvalidate",
+            ],
         )
-        about_window.add_acknowledgement_section(
+        about_dialog.add_acknowledgement_section(
             _("Sponsored and Funded by"),
             [
                 "JetBrains https://www.jetbrains.com/?from=bottles",
                 "GitBook https://www.gitbook.com/?ref=bottles",
                 "Linode https://www.linode.com/?from=bottles",
                 "Appwrite https://appwrite.io/?from=bottles",
-                "Community ❤️ https://usebottles.com/funding"
-            ]
+                "Community ❤️ https://usebottles.com/funding",
+            ],
         )
-        about_window.set_release_notes(release_notes)
-        about_window.set_release_notes_version("51.0")
-        about_window.set_transient_for(self.win)
-        about_window.present()
+        about_dialog.present(self.win)
 
     def __create_action(self, name, callback, shortcuts=None, param=None):
         """Add an application action.
@@ -351,6 +389,7 @@ class Bottles(Adw.Application):
         self.add_action(action)
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
+
 
 GObject.threads_init()
 

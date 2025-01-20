@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bottles\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-27 13:50+0530\n"
-"PO-Revision-Date: 2023-01-19 06:44+0000\n"
+"PO-Revision-Date: 2024-02-07 02:19+0000\n"
 "Last-Translator: Incognitux <naanx2006@gmail.com>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/bottles/bottles/hi/"
 ">\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 5.4-dev\n"
 
 #: bottles/backend/managers/backup.py:48 bottles/backend/managers/backup.py:95
 msgid "No path specified"
@@ -52,7 +52,7 @@ msgstr "प्लेसहोल्डर डायरेक्टरी/फ़�
 #: bottles/backend/managers/manager.py:1162
 #, fuzzy
 msgid "Generating bottle configuration…"
-msgstr "Bottle कॉन्फ़िग फ़ाइल जनरेट कर रहे है ..."
+msgstr "Bottle कॉन्फ़िग फ़ाइल जनरेट कर रहे है …"
 
 #: bottles/backend/managers/manager.py:1185
 msgid "Template found, applying…"
@@ -96,11 +96,11 @@ msgstr "पर्यावरण लागू कर रहे हैं: {0}…
 
 #: bottles/backend/managers/manager.py:1289
 msgid "(!) Using a custom environment recipe…"
-msgstr ""
+msgstr "कस्टम एनवायरनमेंट रेसिपी का प्रयोग किया जा रहा है…"
 
 #: bottles/backend/managers/manager.py:1292
 msgid "(!) Recipe not not found or not valid…"
-msgstr ""
+msgstr "रेसिपी नहीं पायी गई, या रेसिपी सही नहीं है…"
 
 #: bottles/backend/managers/manager.py:1309
 msgid "Installing DXVK…"
@@ -108,11 +108,11 @@ msgstr "DXVK स्थापित कर रहे है …"
 
 #: bottles/backend/managers/manager.py:1317
 msgid "Installing VKD3D…"
-msgstr ""
+msgstr "VKD3D इंस्टॉल किया जा रहा है…"
 
 #: bottles/backend/managers/manager.py:1326
 msgid "Installing DXVK-NVAPI…"
-msgstr ""
+msgstr "डीएक्सवीके-एनवीएपीआई स्थापित किया जा रहा है…"
 
 #: bottles/backend/managers/manager.py:1335
 #, python-format
@@ -640,7 +640,7 @@ msgid "DXVK"
 msgstr ""
 
 #: bottles/frontend/ui/details-preferences.blp:28
-msgid "Improve Direct3D 9/10/11 compatibility by translating it to Vulkan."
+msgid "Improve Direct3D 8/9/10/11 compatibility by translating it to Vulkan."
 msgstr ""
 
 #: bottles/frontend/ui/details-preferences.blp:30
@@ -2842,9 +2842,8 @@ msgid "Clean the temp path when booting the system."
 msgstr "सिस्टम को बूट करते समय अस्थायी पथ को साफ करें।"
 
 #: data/com.usebottles.bottles.gschema.xml:56
-#, fuzzy
 msgid "Release Candidate"
-msgstr "उम्मीदवार के रिहाई"
+msgstr "रिलीज कैंडिडेट"
 
 #: data/com.usebottles.bottles.gschema.xml:57
 msgid "Toggle release candidate for runners."

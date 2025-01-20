@@ -5,6 +5,7 @@ import time
 from bottles.backend.logger import Logger
 from bottles.backend.utils.manager import ManagerUtils
 from bottles.backend.utils.proc import ProcUtils
+from bottles.backend.utils.steam import SteamUtils
 from bottles.backend.wine.wineprogram import WineProgram
 
 logging = Logger()
@@ -34,6 +35,9 @@ class WineServer(WineProgram):
             bottle = config.Path
             runner = config.RunnerPath
 
+        if SteamUtils.is_proton(runner):
+            runner = SteamUtils.get_dist_directory(runner)
+
         env = os.environ.copy()
         env["WINEPREFIX"] = bottle
         env["PATH"] = f"{runner}/bin:{env['PATH']}"
@@ -43,9 +47,9 @@ class WineServer(WineProgram):
             stderr=subprocess.PIPE,
             shell=True,
             cwd=bottle,
-            env=env
+            env=env,
         )
-        time.sleep(.5)
+        time.sleep(0.5)
         if res.poll() is None:
             res.kill()  # kill the process to avoid zombie incursion
             return True
@@ -55,6 +59,13 @@ class WineServer(WineProgram):
         config = self.config
         bottle = ManagerUtils.get_bottle_path(config)
         runner = ManagerUtils.get_runner_path(config.Runner)
+
+        if config.Environment == "Steam":
+            bottle = config.Path
+            runner = config.RunnerPath
+
+        if SteamUtils.is_proton(runner):
+            runner = SteamUtils.get_dist_directory(runner)
 
         env = os.environ.copy()
         env["WINEPREFIX"] = bottle
@@ -66,7 +77,7 @@ class WineServer(WineProgram):
             stderr=subprocess.PIPE,
             shell=True,
             cwd=bottle,
-            env=env
+            env=env,
         ).wait()
 
     def kill(self, signal: int = -1):
@@ -75,9 +86,7 @@ class WineServer(WineProgram):
             args += str(signal)
 
         self.launch(
-            args=args,
-            communicate=True,
-            action_name="sending signal to the wine server"
+            args=args, communicate=True, action_name="sending signal to the wine server"
         )
 
     def force_kill(self):

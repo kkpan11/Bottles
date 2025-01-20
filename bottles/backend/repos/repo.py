@@ -62,7 +62,7 @@ class Repo:
             logging.error(f"Cannot fetch {self.name} repository index.")
             return {}
 
-    def get_manifest(self, url: str, plain: bool = False):
+    def get_manifest(self, url: str, plain: bool = False) -> str | dict | bool:
         try:
             buffer = BytesIO()
 
@@ -81,4 +81,4 @@ class Repo:
             return yaml.load(res)
         except (pycurl.error, yaml.YAMLError):
             logging.error(f"Cannot fetch {self.name} manifest.")
-            return {}
+            return False
